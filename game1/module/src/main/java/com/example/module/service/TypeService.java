@@ -68,10 +68,12 @@ public class TypeService {
             }
         }
         else {
+            type.setId(id);
             int result = update(type);
             if (result == 0){
-                throw new RuntimeException("id不存在");
+                throw new RuntimeException("更新失败");
             }
+
         }
         return type.getId();
     }

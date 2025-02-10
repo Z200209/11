@@ -201,7 +201,7 @@ public class ConsoleGameController {
             typeService.edit(typeId, typeName, image);
             return "成功 ID:" + typeId;
         } catch (RuntimeException e) {
-            log.info(e.getMessage());
+            e.printStackTrace();
             return "失败";
         }
     }
