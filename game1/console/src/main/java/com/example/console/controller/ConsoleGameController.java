@@ -1,6 +1,7 @@
 package com.example.console.controller;
 import com.example.console.domain.*;
 import com.example.module.entity.Game;
+import com.example.module.entity.GameDTO;
 import com.example.module.entity.Type;
 import com.example.module.service.GameService;
 import com.example.module.service.TypeService;
@@ -22,8 +23,6 @@ public class ConsoleGameController {
 
     @Autowired
     private GameService gameService;
-    @Autowired
-    private TypeService typeService;
     
     @RequestMapping("/create")
     public String createGame(
@@ -112,13 +111,13 @@ public class ConsoleGameController {
     }
     @RequestMapping("/info")
     public DetailVO gameInfo(@RequestParam(name = "gameId") BigInteger gameId) {
-            Game game = gameService.getById(gameId);
+            GameDTO game = gameService.getById(gameId);
             String formattedCreateTime = formatDate(game.getCreateTime());
             String formattedUpdateTime = formatDate(game.getUpdateTime());
-            String TypeName = typeService.getById(game.getTypeId()).getTypeName();
+
             DetailVO detailVO = new DetailVO();
             return detailVO
-                    .setTypeName(TypeName)
+                    .setTypeName(game.getTypeName())
                     .setGameId(game.getId())
                     .setGameName(game.getGameName())
                     .setPrice(game.getPrice())
@@ -129,15 +128,16 @@ public class ConsoleGameController {
                     .setCreateTime(formattedCreateTime)
                     .setUpdateTime(formattedUpdateTime);
         }
-        @RequestMapping("/list")
-        public ListVO gameList(@RequestParam(name = "page", defaultValue = "1") Integer page,
-                               @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                               @RequestParam(name = "keyword", required=false) String keyword,
-                               @RequestParam(name = "typeId", required=false) BigInteger typeId) {
-            List<Game> Game = gameService.getAllGame(page, pageSize, keyword, typeId);
+
+    @RequestMapping("/list")
+    public ListVO gameList(@RequestParam(name = "page", defaultValue = "1") Integer page,
+                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                           @RequestParam(name = "keyword", required=false) String keyword,
+                           @RequestParam(name = "typeId", required=false) BigInteger typeId) {
+            List<GameDTO> Game = gameService.getAllGame(page, pageSize, keyword, typeId);
             Integer total = gameService.getTotalCount(keyword);
             List <GameVO> gameList = new ArrayList<>();
-            for (Game game : Game) {
+            for (GameDTO game : Game) {
                 GameVO gameVO = new GameVO()
                         .setTypeId(game.getTypeId())
                         .setTypeName(game.getTypeName())
@@ -152,65 +152,7 @@ public class ConsoleGameController {
                     .setTotal(total)
                     .setPageSize(pageSize);
     }
-    @RequestMapping("/type/list")
-    public TypeListVO typeList(@RequestParam(name = "page", defaultValue = "1") Integer page,
-                                 @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                                 @RequestParam(name = "keyword", required=false) String keyword) {
-        List<Type> typeList = typeService.getAll(page, pageSize, keyword);
-        Integer total = typeService.getTotalCount(keyword);
-        List<TypeVO> typeVOList = new ArrayList<>();
-        for (Type type : typeList) {
-            TypeVO typeVO = new TypeVO();
-            typeVO.setTypeId(type.getId())
-                    .setTypeName(type.getTypeName())
-                    .setImage(type.getImage());
-            typeVOList.add(typeVO);
-        }
-        return new TypeListVO()
-                .setTypeList(typeVOList)
-                .setTotal(total)
-                .setPageSize(pageSize);
-    }
-    @RequestMapping("/type/create")
-    public String createType(@RequestParam(name = "typeName") String typeName,
-                             @RequestParam(name = "image") String image) {
-        typeName = typeName.trim();
-        if (typeName.isEmpty()) {
-            log.info("游戏类型名称不能为空字符串");
-            return "失败";
-        }
-        try {
-           BigInteger typeId = typeService.edit(null, typeName, image);
-            return "成功 ID：" + typeId ;
-        } catch (RuntimeException e) {
-            log.info(e.getMessage());
-            return "失败";
-        }
-    }
 
-    @RequestMapping("/type/update")
-    public String updateType(@RequestParam(name = "typeId") BigInteger typeId,
-                             @RequestParam(name = "typeName") String typeName,
-                             @RequestParam(name = "image") String image) {
-        typeName = typeName.trim();
-        if (typeName.isEmpty()) {
-            log.info("游戏类型名称不能为空字符串");
-            return "失败";
-        }
-        try {
-            typeService.edit(typeId, typeName, image);
-            return "成功 ID:" + typeId;
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            return "失败";
-        }
-    }
-    @GetMapping("/type/delete")
-    public String deleteType(@RequestParam(name = "typeId") BigInteger typeId) {
-        int result = typeService.delete(typeId);
-        gameService.updateTypeIdByOldId(typeId, null);
-        return result == 1 ? "成功" : "失败";
-    }
 }
 
 

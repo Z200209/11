@@ -47,7 +47,7 @@
     </update>
 
     <!--列表查询 模糊查询 -->
-    <select id="getAll" parameterType="com.example.module.entity.Game">
+    <select id="getAll" parameterType="com.example.module.entity.GameDTO">
         SELECT
                     g.*,
                     t.*

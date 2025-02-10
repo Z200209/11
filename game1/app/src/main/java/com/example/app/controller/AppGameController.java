@@ -5,6 +5,7 @@ import com.example.app.domain.GameVO;
 import com.example.app.domain.ListVO;
 import com.example.app.domain.TypeVO;
 import com.example.module.entity.Game;
+import com.example.module.entity.GameDTO;
 import com.example.module.entity.Type;
 import com.example.module.service.GameService;
 import com.example.module.service.TypeService;
@@ -25,19 +26,15 @@ public class AppGameController {
     private static final Logger log = LoggerFactory.getLogger(AppGameController.class);
     @Autowired
     private GameService gameService;
-    @Autowired
-    private TypeService typeService;
 
     @RequestMapping("/info")
     public DetailVO gameInfo(@RequestParam(name = "gameId") BigInteger gameId) {
-        Game game = gameService.getById(gameId);
+        GameDTO game = gameService.getById(gameId);
         DetailVO detailVO = new DetailVO();
-        String TypeName = typeService.getById(game.getTypeId()).getTypeName();
-        String TypeImage = typeService.getById(game.getTypeId()).getImage();
         return detailVO
                 .setGameId(game.getId())
-                .setTypeName(TypeName)
-                .setTypeImage(TypeImage)
+                .setTypeName(game.getTypeName())
+                .setTypeImage(game.getTypeImage())
                 .setGameName(game.getGameName())
                 .setPrice(game.getPrice())
                 .setGameIntroduction(game.getGameIntroduction())
@@ -52,9 +49,10 @@ public class AppGameController {
                            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                            @RequestParam(name = "keyword", required=false)String keyword,
                            @RequestParam(name = "typeId", required=false)BigInteger typeId) {
-        List<Game> Game = gameService.getAllGame(page, pageSize, keyword,typeId);
+        List<GameDTO> Game = gameService.getAllGame(page, pageSize, keyword,typeId);
+
         List<GameVO> gameList = new ArrayList<>();
-           for (Game game : Game) {
+           for (GameDTO game : Game) {
                GameVO gameVO = new GameVO();
                gameVO.setGameId(game.getId())
                        .setGameName(game.getGameName())
@@ -67,21 +65,7 @@ public class AppGameController {
                 .setIsEnd(gameList.size()<pageSize);
 
     }
-    @RequestMapping("/type/list")
-    public List<TypeVO> typeList(@RequestParam(name = "page", defaultValue = "1") Integer page,
-                                 @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                                 @RequestParam(name = "keyword", required=false)String keyword) {
-        List<Type> typeList = typeService.getAll(page, pageSize, keyword);
-        List<TypeVO> typeVOList = new ArrayList<>();
-        for (Type type : typeList) {
-            TypeVO typeVO = new TypeVO();
-            typeVO.setTypeId(type.getId())
-                    .setTypeName(type.getTypeName())
-                    .setImage(type.getImage());
-            typeVOList.add(typeVO);
-        }
-        return typeVOList;
-    }
+
 
 
     @GetMapping("/test")

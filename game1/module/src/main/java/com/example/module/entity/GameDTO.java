@@ -6,7 +6,7 @@ import lombok.experimental.Accessors;
 import java.math.BigInteger;
 @Data
 @Accessors(chain = true)
-public class Game {
+public class GameDTO {
     private BigInteger id;
     private String gameName;
     private Float price;
@@ -18,4 +18,6 @@ public class Game {
     private Integer updateTime;
     private Integer isDeleted;
     private BigInteger typeId;
+    private String typeName;
+    private String typeImage;
 }

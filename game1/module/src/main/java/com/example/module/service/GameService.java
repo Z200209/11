@@ -2,6 +2,7 @@ package com.example.module.service;
 
 
 import com.example.module.entity.Game;
+import com.example.module.entity.GameDTO;
 import com.example.module.entity.Type;
 import com.example.module.mapper.GameMapper;
 import com.example.module.mapper.TypeMapper;
@@ -20,7 +21,7 @@ public class GameService {
     private GameMapper mapper;
     @Resource
     private TypeMapper typeMapper;
-    public Game getById(BigInteger id) {
+    public GameDTO getById(BigInteger id) {
         return mapper.getById(id);
     }
     public Game extractById(BigInteger id) {
@@ -41,7 +42,8 @@ public class GameService {
     }
 
 
-    public List<Game> getAllGame(Integer page, Integer pageSize, String keyword, BigInteger typeId) {
+    public List<GameDTO> getAllGame(Integer page, Integer pageSize, String keyword, BigInteger typeId) {
+        
         return mapper.getAll((page-1) * pageSize, pageSize, keyword,typeId);
     }
 
