@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.module.mapper.TypeMapper">
+
+    <insert id="insert"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            parameterType="com.example.module.entity.Type">
+        insert into type(
+                        <if test=" typeName  != null and typeName != ''"> `type_name` ,</if>
+                        <if test=" image  != null and image != ''"> `image` ,</if>
+                        <if test=" createTime  != null"> `create_time` ,</if>
+                        <if test=" updateTime  != null"> `update_time` ,</if>
+                    is_deleted 
+        )values(
+                        <if test="typeName != null and typeName!= ''">#{typeName},</if>
+                        <if test="image != null and image!= ''">#{image},</if>
+                        <if test="createTime != null">#{createTime},</if>
+                        <if test="updateTime != null">#{updateTime},</if>
+                    #{isDeleted} 
+        )
+    </insert>
+
+    <!-- 更新操作 -->
+    <update id="update" parameterType="com.example.module.entity.Type">
+        UPDATE type
+        <set>
+                    id = #{typeId},
+                        <if test="typeName != null and typeName != ''">
+                            `type_name` = #{ typeName },
+                        </if>
+                        <if test="image != null and image != ''">
+                            `image` = #{ image },
+                        </if>
+                        <if test="createTime != null">
+                            `create_time` = #{ createTime },
+                        </if>
+                        <if test="updateTime != null">
+                            `update_time` = #{ updateTime },
+                        </if>
+                        <if test="isDeleted != null">
+                            `is_deleted` = #{ isDeleted },
+                        </if>
+        </set>
+        WHERE `type_id` = #{typeId}
+    </update>
+</mapper>

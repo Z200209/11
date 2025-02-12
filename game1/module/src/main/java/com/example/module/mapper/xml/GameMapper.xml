@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.module.mapper.GameMapper">
+
+    <insert id="insert"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            parameterType="com.example.module.entity.Game">
+        insert into game(
+                        <if test=" gameName  != null and gameName != ''"> `game_name` ,</if>
+                        <if test=" price  != null"> `price` ,</if>
+                        <if test=" gameIntroduction  != null and gameIntroduction != ''"> `game_introduction` ,</if>
+                        <if test=" gameDate  != null and gameDate != ''"> `game_date` ,</if>
+                        <if test=" gamePublisher  != null and gamePublisher != ''"> `game_publisher` ,</if>
+                        <if test=" images  != null and images != ''"> `images` ,</if>
+                        <if test=" createTime  != null"> `create_time` ,</if>
+                        <if test=" updateTime  != null"> `update_time` ,</if>
+                    is_deleted ,
+                        <if test=" typeId  != null"> `type_id` </if>
+        )values(
+                        <if test="gameName != null and gameName!= ''">#{gameName},</if>
+                        <if test="price != null">#{price},</if>
+                        <if test="gameIntroduction != null and gameIntroduction!= ''">#{gameIntroduction},</if>
+                        <if test="gameDate != null and gameDate!= ''">#{gameDate},</if>
+                        <if test="gamePublisher != null and gamePublisher!= ''">#{gamePublisher},</if>
+                        <if test="images != null and images!= ''">#{images},</if>
+                        <if test="createTime != null">#{createTime},</if>
+                        <if test="updateTime != null">#{updateTime},</if>
+                    #{isDeleted} ,
+                        <if test="typeId != null">#{typeId}</if>
+        )
+    </insert>
+
+    <!-- 更新操作 -->
+    <update id="update" parameterType="com.example.module.entity.Game">
+        UPDATE game
+        <set>
+                    id = #{gameId},
+                        <if test="gameName != null and gameName != ''">
+                            `game_name` = #{ gameName },
+                        </if>
+                        <if test="price != null">
+                            `price` = #{ price },
+                        </if>
+                        <if test="gameIntroduction != null and gameIntroduction != ''">
+                            `game_introduction` = #{ gameIntroduction },
+                        </if>
+                        <if test="gameDate != null and gameDate != ''">
+                            `game_date` = #{ gameDate },
+                        </if>
+                        <if test="gamePublisher != null and gamePublisher != ''">
+                            `game_publisher` = #{ gamePublisher },
+                        </if>
+                        <if test="images != null and images != ''">
+                            `images` = #{ images },
+                        </if>
+                        <if test="createTime != null">
+                            `create_time` = #{ createTime },
+                        </if>
+                        <if test="updateTime != null">
+                            `update_time` = #{ updateTime },
+                        </if>
+                        <if test="isDeleted != null">
+                            `is_deleted` = #{ isDeleted },
+                        </if>
+                        <if test="typeId != null">
+                            `type_id` = #{ typeId },
+                        </if>
+        </set>
+        WHERE `game_id` = #{gameId}
+    </update>
+</mapper>
