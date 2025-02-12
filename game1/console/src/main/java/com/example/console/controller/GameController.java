@@ -1,10 +1,7 @@
 package com.example.console.controller;
 import com.example.console.domain.*;
-import com.example.module.entity.Game;
 import com.example.module.entity.GameDTO;
-import com.example.module.entity.Type;
 import com.example.module.service.GameService;
-import com.example.module.service.TypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/game/console")
 @Slf4j
-public class ConsoleGameController {
+public class GameController {
 
     @Autowired
     private GameService gameService;
@@ -65,7 +62,7 @@ public class ConsoleGameController {
 
     @RequestMapping("/update")
     public String updateGame(
-            @RequestParam(name = "typeId" ,required = false) BigInteger typeId,
+            @RequestParam(name = "typeId" ) BigInteger typeId,
             @RequestParam(name = "gameId") BigInteger gameId,
             @RequestParam(name = "gameName") String gameName,
             @RequestParam(name = "price") Float price,
@@ -131,9 +128,9 @@ public class ConsoleGameController {
 
     @RequestMapping("/list")
     public ListVO gameList(@RequestParam(name = "page", defaultValue = "1") Integer page,
-                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                            @RequestParam(name = "keyword", required=false) String keyword,
                            @RequestParam(name = "typeId", required=false) BigInteger typeId) {
+            int pageSize = 10;
             List<GameDTO> Game = gameService.getAllGame(page, pageSize, keyword, typeId);
             Integer total = gameService.getTotalCount(keyword);
             List <GameVO> gameList = new ArrayList<>();

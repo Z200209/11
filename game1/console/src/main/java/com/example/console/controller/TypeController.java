@@ -23,15 +23,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/game/console/type")
 @Slf4j
-public class ConsoleTypeController {
+public class TypeController {
     @Autowired
     private TypeService typeService;
     @Autowired
     private GameService gameService;
     @RequestMapping("/list")
     public TypeListVO typeList(@RequestParam(name = "page", defaultValue = "1") Integer page,
-                               @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                @RequestParam(name = "keyword", required=false) String keyword) {
+        int pageSize = 10;
         List<Type> typeList = typeService.getAll(page, pageSize, keyword);
         Integer total = typeService.getTotalCount(keyword);
         List<TypeVO> typeVOList = new ArrayList<>();
@@ -102,11 +102,22 @@ public class ConsoleTypeController {
             return "失败";
         }
     }
+
     @GetMapping("/delete")
     public String deleteType(@RequestParam(name = "typeId") BigInteger typeId) {
-        int result = typeService.delete(typeId);
-        gameService.updateTypeIdByOldId(typeId, null);
-        return result == 1 ? "成功" : "失败";
+        if(typeId == null){
+            log.info("游戏类型ID不能为空");
+            return "失败";
+        }
+        try {
+            int result = typeService.delete(typeId);
+             return result == 1 ? "成功" : "失败";
+
+        } catch (Exception e) {
+            log.info(e.getLocalizedMessage());
+            return "失败";
+        }
+
     }
 
 }

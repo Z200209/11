@@ -30,7 +30,6 @@ public interface GameMapper  {
 
     int getTotalCount(@Param("keyword") String keyword);
 
-    @Update("update game set type_id = #{newid},update_time=#{time} where type_id = #{oldid}")
-    void updateTypeIdByOldId(@Param("oldid") BigInteger oldId, @Param("newid") BigInteger newId, @Param("time") Integer time);
-
+    @Select("SELECT id from game where type_id = #{type_id} and is_deleted = 0")
+    List<BigInteger> isExistByTypeId(@Param("type_id") BigInteger type_id);
 }

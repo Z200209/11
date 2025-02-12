@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-public class DetailVO {
+public class GameInfoVO {
     private BigInteger gameId;       // 游戏 ID
     private String gameName;         // 游戏名称
     private Float price;             // 游戏价格

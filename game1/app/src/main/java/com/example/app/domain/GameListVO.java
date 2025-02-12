@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-public class ListVO {
+public class GameListVO {
    List<GameVO> gameList;
    private Boolean isEnd;
 }

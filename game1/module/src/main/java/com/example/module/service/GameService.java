@@ -112,12 +112,4 @@ public class GameService {
         return mapper.getTotalCount(keyword);
     }
 
-    public void updateTypeIdByOldId(BigInteger oldid, BigInteger newid) {
-        int time = (int) (System.currentTimeMillis() / 1000);
-        if(oldid == null){
-            throw new RuntimeException("oldid 不能为空");
-        }
-        mapper.updateTypeIdByOldId(oldid, newid, time);
-    }
-
 }

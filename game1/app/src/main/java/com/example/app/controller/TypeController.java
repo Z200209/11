@@ -14,13 +14,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/game/app/type")
-public class TypeGameController {
+public class TypeController {
     @Resource
     private TypeService typeService;
     @RequestMapping("/list")
     public TypeListVO typeList(@RequestParam(name = "page", defaultValue = "1") Integer page,
-                               @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                @RequestParam(name = "keyword", required=false)String keyword) {
+        int pageSize = 10;
         List<Type> typeList = typeService.getAll(page, pageSize, keyword);
         List<TypeVO> typeVOList = new ArrayList<>();
         for (Type type : typeList) {
