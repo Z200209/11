@@ -3,10 +3,10 @@ package com.example.app.controller;
 import com.example.app.domain.GameInfoVO;
 import com.example.app.domain.GameVO;
 import com.example.app.domain.GameListVO;
-import com.example.module.entity.GameDTO;
+import com.example.module.entity.Game;
+import com.example.module.entity.Type;
 import com.example.module.service.GameService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.example.module.service.TypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,18 +19,23 @@ import java.util.List;
 @RequestMapping("/game/app")
 public class GameController {
 
-    private static final Logger log = LoggerFactory.getLogger(TypeController.class);
     @Autowired
     private GameService gameService;
+    @Autowired
+    private TypeService typeService;
 
     @RequestMapping("/info")
     public GameInfoVO gameInfo(@RequestParam(name = "gameId") BigInteger gameId) {
-        GameDTO game = gameService.getById(gameId);
+        Game game = gameService.getById(gameId);
+        Type type = typeService.getById(game.getTypeId());
+        String typeName = type.getTypeName();
+        String typeImage = type.getImage();
+
         GameInfoVO detailVO = new GameInfoVO();
         return detailVO
                 .setGameId(game.getId())
-                .setTypeName(game.getTypeName())
-                .setTypeImage(game.getTypeImage())
+                .setTypeName(typeName)
+                .setTypeImage(typeImage)
                 .setGameName(game.getGameName())
                 .setPrice(game.getPrice())
                 .setGameIntroduction(game.getGameIntroduction())
@@ -45,15 +50,14 @@ public class GameController {
                                @RequestParam(name = "keyword", required=false)String keyword,
                                @RequestParam(name = "typeId", required=false)BigInteger typeId) {
         int pageSize = 10;
-        List<GameDTO> Game = gameService.getAllGame(page, pageSize, keyword,typeId);
-
+        List<Game> Game = gameService.getAllGame(page, pageSize, keyword,typeId);
         List<GameVO> gameList = new ArrayList<>();
-           for (GameDTO game : Game) {
+           for (Game game : Game) {
                GameVO gameVO = new GameVO();
                gameVO.setGameId(game.getId())
                        .setGameName(game.getGameName())
-                       .setTypeName(game.getTypeName())
-                       .setImages((game.getImages().split("\\$"))[0]);
+                       .setImages((game.getImages().split("\\$"))[0])
+                       .setTypeName(typeService.getById(game.getTypeId()).getTypeName());
                gameList.add(gameVO);
            }
         return new GameListVO()

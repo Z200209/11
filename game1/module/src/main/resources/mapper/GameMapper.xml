@@ -47,20 +47,17 @@
     </update>
 
     <!--列表查询 模糊查询 -->
-    <select id="getAll" parameterType="com.example.module.entity.GameDTO">
-        SELECT
-                    g.*,
-                    t.*
-        FROM game g
-        LEFT JOIN type t ON g.type_id = t.id
-        WHERE g.is_deleted = 0
+    <select id="getAll" parameterType="com.example.module.entity.Game">
+        SELECT *
+        FROM game
+        WHERE is_deleted = 0
         <if test="keyword != null and keyword != ''">
             AND game_name LIKE CONCAT('%', #{keyword}, '%')
         </if>
         <if test="typeId != null and typeId != ''">
             AND type_id = #{typeId}
         </if>
-        ORDER BY g.id ASC
+        ORDER BY id ASC
         LIMIT #{offset}, #{pageSize}
     </select>
 
