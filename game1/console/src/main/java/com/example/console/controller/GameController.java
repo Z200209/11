@@ -1,6 +1,7 @@
 package com.example.console.controller;
 import com.example.console.domain.*;
 import com.example.module.entity.Game;
+import com.example.module.entity.Type;
 import com.example.module.service.GameService;
 import com.example.module.service.TypeService;
 import lombok.extern.slf4j.Slf4j;
@@ -93,7 +94,7 @@ public class GameController {
             return "成功, ID: " + gameId;
         }
         catch (RuntimeException e)  {
-            log.info(e.getMessage());
+            log.info(e.getLocalizedMessage());
             return "失败";
         }
 
@@ -101,8 +102,15 @@ public class GameController {
 
     @RequestMapping("/delete")
     public String deleteGame(@RequestParam(name = "gameId") BigInteger gameId) {
-        int result = gameService.delete(gameId);
-        return result == 1 ? "成功" : "失败";
+       try
+       {
+           int result = gameService.delete(gameId);
+           return result == 1 ? "成功" : "失败";
+        }
+        catch (Exception e) {
+            log.info(e.getLocalizedMessage());
+            return "失败";
+        }
     }
     private String formatDate(long timestamp) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -112,10 +120,23 @@ public class GameController {
     @RequestMapping("/info")
     public DetailVO gameInfo(@RequestParam(name = "gameId") BigInteger gameId) {
             Game game = gameService.getById(gameId);
+            if (game == null){
+                log.info("未找到游戏信息：{}", gameId);
+                return null;
+            }
             String formattedCreateTime = formatDate(game.getCreateTime());
             String formattedUpdateTime = formatDate(game.getUpdateTime());
             BigInteger typeId = game.getTypeId();
-            String typeName = typeService.getById(typeId).getTypeName();
+            Type type = typeService.getById(typeId);
+             if (type == null){
+                 log.info("未找到游戏类型：{}", typeId);
+                 return null;
+             }
+             String typeName = type.getTypeName();
+             if (typeName == null){
+                 log.info("未找到游戏类型名称：{}", typeId);
+                 return null;
+             }
 
             DetailVO detailVO = new DetailVO();
             return detailVO
@@ -137,18 +158,35 @@ public class GameController {
                            @RequestParam(name = "typeId", required=false) BigInteger typeId) {
             int pageSize = 10;
             List<Game> Game = gameService.getAllGame(page, pageSize, keyword, typeId);
+            if (Game.isEmpty()){
+                log.info("未找到游戏信息：");
+                return null;
+            }
             Integer total = gameService.getTotalCount(keyword);
+            if (total == null){
+                log.info("查询数据错误");
+                return null;
+            }
 
             List <GameVO> gameList = new ArrayList<>();
             for (Game game : Game) {
+                Type type = typeService.getById(game.getTypeId());
+                if (type == null){
+                    log.info("未找到游戏类型："+ game.getTypeId());
+                    return null;
+                }
+                String typeName = type.getTypeName();
+                if (typeName == null) {
+                    log.info("未找到游戏类型名称："+ type.getId());
+                    return null;
+                }
                 GameVO gameVO = new GameVO()
                         .setTypeId(game.getTypeId())
-                        .setTypeName(typeService.getById(game.getTypeId()).getTypeName())
                         .setGameId(game.getId())
                         .setGameName(game.getGameName())
+                        .setTypeName(typeName)
                         .setImage(game.getImages().split("\\$")[0]);
                 gameList.add(gameVO);
-
             }
             return new ListVO()
                     .setGameList(gameList)

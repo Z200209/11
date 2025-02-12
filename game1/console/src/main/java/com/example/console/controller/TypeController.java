@@ -4,7 +4,6 @@ import com.example.console.domain.TypeDetailVO;
 import com.example.console.domain.TypeListVO;
 import com.example.console.domain.TypeVO;
 import com.example.module.entity.Type;
-import com.example.module.service.GameService;
 import com.example.module.service.TypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +25,21 @@ import java.util.List;
 public class TypeController {
     @Autowired
     private TypeService typeService;
-    @Autowired
-    private GameService gameService;
+
     @RequestMapping("/list")
     public TypeListVO typeList(@RequestParam(name = "page", defaultValue = "1") Integer page,
                                @RequestParam(name = "keyword", required=false) String keyword) {
         int pageSize = 10;
         List<Type> typeList = typeService.getAll(page, pageSize, keyword);
+        if (typeList == null){
+            log.info("没有找到类型信息");
+            return null;
+        }
         Integer total = typeService.getTotalCount(keyword);
+        if (total == null){
+            log.info("查询数据错误total");
+            return null;
+        }
         List<TypeVO> typeVOList = new ArrayList<>();
         for (Type type : typeList) {
             TypeVO typeVO = new TypeVO();
@@ -57,6 +63,10 @@ public class TypeController {
     @RequestMapping("/info")
     public TypeDetailVO typeInfo(@RequestParam(name = "typeId") BigInteger typeId) {
         Type type = typeService.getById(typeId);
+        if (type == null){
+            log.info("未找到游戏类型：{}", typeId);
+            return null;
+        }
         String createTime = formatDate(type.getCreateTime());
         String updateTime = formatDate(type.getUpdateTime());
         TypeDetailVO typeDetailVO = new TypeDetailVO();
