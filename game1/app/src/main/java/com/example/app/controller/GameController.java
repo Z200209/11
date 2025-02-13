@@ -31,7 +31,7 @@ public class GameController {
     public GameInfoVO gameInfo(@RequestParam(name = "gameId") BigInteger gameId) {
         Game game = gameService.getById(gameId);
         if (game == null){
-            log.info("未找到游戏信息："+ gameId);
+            log.info("未找到游戏信息：{}", gameId);
             return null;
         }
         Type type = typeService.getById(game.getTypeId());
@@ -41,13 +41,11 @@ public class GameController {
         }
         String typeName = type.getTypeName();
         if (typeName == null) {
-            log.info("未找到游戏类型名称："+ type.getId());
-            return null;
+            log.info("未找到游戏类型名称：{}", type.getId());
         }
         String typeImage = type.getImage();
         if (typeImage == null) {
-            log.info("未找到游戏类型图片："+ type.getId());
-            return null;
+            log.info("未找到游戏类型图片：{}", type.getId());
         }
 
         GameInfoVO detailVO = new GameInfoVO();
@@ -79,13 +77,9 @@ public class GameController {
                Type type = typeService.getById(game.getTypeId());
                if (type == null){
                    log.info("未找到游戏类型："+ game.getTypeId());
-                   return null;
+                   continue;
                }
                String typeName = type.getTypeName();
-               if (typeName == null){
-                   log.info("未找到游戏类型名称："+ game.getTypeId());
-                   return null;
-               }
                GameVO gameVO = new GameVO();
                gameVO.setGameId(game.getId())
                        .setGameName(game.getGameName())

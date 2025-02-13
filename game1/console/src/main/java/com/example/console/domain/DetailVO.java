@@ -20,5 +20,6 @@ public class DetailVO {
     private String createTime;
     private String updateTime;
     private String typeName;
+    private String typeImage;
 
 }

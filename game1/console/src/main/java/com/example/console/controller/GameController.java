@@ -135,12 +135,16 @@ public class GameController {
              String typeName = type.getTypeName();
              if (typeName == null){
                  log.info("未找到游戏类型名称：{}", typeId);
-                 return null;
+             }
+             String typeImage = type.getImage();
+             if (typeImage == null){
+                 log.info("未找到游戏类型图片：{}", typeId);
              }
 
             DetailVO detailVO = new DetailVO();
             return detailVO
                     .setTypeName(typeName)
+                    .setTypeImage(typeImage)
                     .setGameId(game.getId())
                     .setGameName(game.getGameName())
                     .setPrice(game.getPrice())
@@ -165,7 +169,6 @@ public class GameController {
             Integer total = gameService.getTotalCount(keyword);
             if (total == null){
                 log.info("查询数据错误");
-                return null;
             }
 
             List <GameVO> gameList = new ArrayList<>();
@@ -173,12 +176,11 @@ public class GameController {
                 Type type = typeService.getById(game.getTypeId());
                 if (type == null){
                     log.info("未找到游戏类型："+ game.getTypeId());
-                    return null;
+                    continue;
                 }
                 String typeName = type.getTypeName();
                 if (typeName == null) {
                     log.info("未找到游戏类型名称："+ type.getId());
-                    return null;
                 }
                 GameVO gameVO = new GameVO()
                         .setTypeId(game.getTypeId())
