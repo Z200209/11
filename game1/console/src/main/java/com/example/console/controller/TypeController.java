@@ -38,7 +38,6 @@ public class TypeController {
         Integer total = typeService.getTotalCount(keyword);
         if (total == null){
             log.info("查询数据错误total");
-            return null;
         }
         List<TypeVO> typeVOList = new ArrayList<>();
         for (Type type : typeList) {
