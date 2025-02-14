@@ -4,6 +4,7 @@ import com.example.console.domain.TypeDetailVO;
 import com.example.console.domain.TypeListVO;
 import com.example.console.domain.TypeVO;
 import com.example.module.entity.Type;
+import com.example.module.service.GameService;
 import com.example.module.service.TypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,16 +26,14 @@ import java.util.List;
 public class TypeController {
     @Autowired
     private TypeService typeService;
+    @Autowired
+    private GameService gameService;
 
     @RequestMapping("/list")
     public TypeListVO typeList(@RequestParam(name = "page", defaultValue = "1") Integer page,
                                @RequestParam(name = "keyword", required=false) String keyword) {
         int pageSize = 10;
         List<Type> typeList = typeService.getAll(page, pageSize, keyword);
-        if (typeList == null){
-            log.info("没有找到类型信息");
-            return null;
-        }
         Integer total = typeService.getTotalCount(keyword);
         if (total == null){
             log.info("查询数据错误total");
@@ -116,6 +115,10 @@ public class TypeController {
     public String deleteType(@RequestParam(name = "typeId") BigInteger typeId) {
         if(typeId == null){
             log.info("游戏类型ID不能为空");
+            return "失败";
+        }
+        if(gameService.getById(typeId)!=null){
+            log.info("该类型下有游戏，不能删除");
             return "失败";
         }
         try {

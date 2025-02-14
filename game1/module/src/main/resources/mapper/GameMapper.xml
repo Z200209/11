@@ -52,10 +52,15 @@
         FROM game
         WHERE is_deleted = 0
         <if test="keyword != null and keyword != ''">
-            AND game_name LIKE CONCAT('%', #{keyword}, '%')
-        </if>
-        <if test="typeId != null and typeId != ''">
-            AND type_id = #{typeId}
+            AND (
+            game_name LIKE CONCAT('%', #{keyword}, '%')
+            OR type_id IN(
+                SELECT id
+                FROM type
+                WHERE type_name
+                LIKE CONCAT('%', #{keyword}, '%')
+                )
+            )
         </if>
         ORDER BY id ASC
         LIMIT #{offset}, #{pageSize}

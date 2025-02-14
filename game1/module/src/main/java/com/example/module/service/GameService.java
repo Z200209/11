@@ -4,9 +4,9 @@ package com.example.module.service;
 import com.example.module.entity.Game;
 import com.example.module.entity.Type;
 import com.example.module.mapper.GameMapper;
-import com.example.module.mapper.TypeMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
@@ -18,8 +18,8 @@ public class GameService {
 
     @Resource
     private GameMapper mapper;
-    @Resource
-    private TypeMapper typeMapper;
+    @Autowired
+    private TypeService typeService;
     public Game getById(BigInteger id) {
         return mapper.getById(id);
     }
@@ -67,9 +67,9 @@ public class GameService {
             throw new RuntimeException("images 不能为空");
         }
         if(typeId != null) {
-            Type type = typeMapper.getById(typeId);
-            if (type == null || type.getIsDeleted() == 1) {
-                throw new IllegalArgumentException("分类不存在或已被删除");
+            Type type = typeService.getById(typeId);
+            if (type == null){
+                throw new RuntimeException("typeId不存在");
             }
         }
 

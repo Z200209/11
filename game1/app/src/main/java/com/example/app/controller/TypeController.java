@@ -25,7 +25,7 @@ public class TypeController {
                                @RequestParam(name = "keyword", required=false)String keyword) {
         int pageSize = 10;
         List<Type> typeList = typeService.getAll(page, pageSize, keyword);
-        if (typeList == null){
+        if (typeList.isEmpty()){
             log.info("没有找到类型信息");
             return null;
         }

@@ -161,18 +161,13 @@ public class GameController {
                            @RequestParam(name = "keyword", required=false) String keyword,
                            @RequestParam(name = "typeId", required=false) BigInteger typeId) {
             int pageSize = 10;
-            List<Game> Game = gameService.getAllGame(page, pageSize, keyword, typeId);
-            if (Game.isEmpty()){
-                log.info("未找到游戏信息：");
-                return null;
-            }
+            List<Game> gameList = gameService.getAllGame(page, pageSize, keyword, typeId);
             Integer total = gameService.getTotalCount(keyword);
             if (total == null){
                 log.info("查询数据错误");
             }
-
-            List <GameVO> gameList = new ArrayList<>();
-            for (Game game : Game) {
+            List <GameVO> gameVOList = new ArrayList<>();
+            for (Game game : gameList) {
                 Type type = typeService.getById(game.getTypeId());
                 if (type == null){
                     log.info("未找到游戏类型："+ game.getTypeId());
@@ -188,10 +183,10 @@ public class GameController {
                         .setGameName(game.getGameName())
                         .setTypeName(typeName)
                         .setImage(game.getImages().split("\\$")[0]);
-                gameList.add(gameVO);
+                gameVOList.add(gameVO);
             }
             return new ListVO()
-                    .setGameList(gameList)
+                    .setGameList(gameVOList)
                     .setTotal(total)
                     .setPageSize(pageSize);
     }

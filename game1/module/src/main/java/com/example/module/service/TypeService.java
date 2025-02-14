@@ -1,7 +1,6 @@
 package com.example.module.service;
 
 import com.example.module.entity.Type;
-import com.example.module.mapper.GameMapper;
 import com.example.module.mapper.TypeMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -13,8 +12,6 @@ import java.util.List;
 public class TypeService {
     @Resource
     private TypeMapper mapper;
-    @Resource
-    private GameMapper gameMapper;
 
     public Type getById(BigInteger id) {
         return mapper.getById(id);
@@ -36,9 +33,6 @@ public class TypeService {
     public int delete(BigInteger id) {
         if (id == null){
             throw new RuntimeException("id 不能为空");
-        }
-        if (gameMapper.isExistByTypeId(id)!=null){
-            throw new RuntimeException("该类型下存在游戏，不能删除");
         }
         int time = (int) (System.currentTimeMillis() / 1000);
         return mapper.delete(id, time);
