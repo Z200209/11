@@ -9,6 +9,7 @@ import java.math.BigInteger;
 @Accessors(chain = true)
 public class Type {
     private BigInteger id;
+    private BigInteger parentId;
     private String typeName;
     private String image;
     private Integer createTime;

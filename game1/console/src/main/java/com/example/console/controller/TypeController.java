@@ -42,6 +42,7 @@ public class TypeController {
         for (Type type : typeList) {
             TypeVO typeVO = new TypeVO();
             typeVO.setTypeId(type.getId())
+                    .setParentId(type.getParentId())
                     .setTypeName(type.getTypeName())
                     .setImage(type.getImage());
             typeVOList.add(typeVO);
@@ -70,6 +71,7 @@ public class TypeController {
         TypeDetailVO typeDetailVO = new TypeDetailVO();
         typeDetailVO.setTypeId(type.getId())
                 .setTypeName(type.getTypeName())
+                .setParentId(type.getParentId())
                 .setImage(type.getImage())
                 .setCreateTime(createTime)
                 .setUpdateTime(updateTime);
@@ -78,14 +80,15 @@ public class TypeController {
 
     @RequestMapping("/create")
     public String createType(@RequestParam(name = "typeName") String typeName,
-                             @RequestParam(name = "image") String image) {
+                             @RequestParam(name = "image") String image,
+                             @RequestParam(name = "parentId", required=false) BigInteger parentId) {
         typeName = typeName.trim();
         if (typeName.isEmpty()) {
             log.info("游戏类型名称不能为空字符串");
             return "失败";
         }
         try {
-            BigInteger typeId = typeService.edit(null, typeName, image);
+            BigInteger typeId = typeService.edit(null, typeName, image,parentId);
             return "成功 ID：" + typeId ;
         } catch (RuntimeException e) {
             log.info(e.getLocalizedMessage());
@@ -96,14 +99,15 @@ public class TypeController {
     @RequestMapping("/update")
     public String updateType(@RequestParam(name = "typeId") BigInteger typeId,
                              @RequestParam(name = "typeName") String typeName,
-                             @RequestParam(name = "image") String image) {
+                             @RequestParam(name = "image") String image,
+                             @RequestParam(name = "parentId", required=false) BigInteger parentId) {
         typeName = typeName.trim();
         if (typeName.isEmpty()) {
             log.info("游戏类型名称不能为空字符串");
             return "失败";
         }
         try {
-            typeService.edit(typeId, typeName, image);
+            typeService.edit(typeId, typeName, image, parentId);
             return "成功 ID:" + typeId;
         } catch (RuntimeException e) {
             log.info(e.getLocalizedMessage());

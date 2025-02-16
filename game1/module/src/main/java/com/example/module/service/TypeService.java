@@ -47,7 +47,7 @@ public class TypeService {
         return mapper.getTotalCount(keyword);
     }
 
-    public BigInteger edit (BigInteger id, String typeName,String image) {
+    public BigInteger edit (BigInteger id, String typeName,String image,BigInteger parentId) {
         if (typeName == null || typeName.isEmpty()) {
             throw new RuntimeException("typeName 不能为空");
         }
@@ -57,6 +57,7 @@ public class TypeService {
         int time = (int) (System.currentTimeMillis() / 1000);
         Type type = new Type();
         type.setTypeName(typeName);
+        type.setParentId(parentId);
         type.setImage(image);
         type.setUpdateTime(time);
         if (id == null){
@@ -76,6 +77,10 @@ public class TypeService {
 
         }
         return type.getId();
+    }
+
+    public List<BigInteger> getTypeIdList(String keyword) {
+        return mapper.getTypeIdList(keyword);
     }
 
 

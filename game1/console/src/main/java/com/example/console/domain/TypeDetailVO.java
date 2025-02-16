@@ -9,6 +9,7 @@ import java.math.BigInteger;
 @Accessors(chain = true)
 public class TypeDetailVO {
     private BigInteger typeId;
+    private BigInteger parentId;
     private String typeName;
     private String image;
     private String createTime;

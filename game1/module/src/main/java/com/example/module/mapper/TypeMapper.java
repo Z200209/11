@@ -27,6 +27,8 @@ public interface TypeMapper {
 
     int getTotalCount(@Param("keyword") String keyword);
 
+    List<BigInteger> getTypeIdList(@Param("keyword") String keyword);
+
 
 
 

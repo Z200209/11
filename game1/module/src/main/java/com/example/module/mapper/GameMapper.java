@@ -25,7 +25,7 @@ public interface GameMapper  {
     int delete(@Param("id") BigInteger id, @Param("time") Integer time);
 
 
-    List<Game> getAll(@Param("offset") Integer offset, @Param("pageSize") Integer pageSize , @Param("keyword") String keyword, @Param("typeId") BigInteger typeId);
+    List<Game> getAll(@Param("offset") Integer offset, @Param("pageSize") Integer pageSize , @Param("keyword") String keyword, @Param("typeId") BigInteger typeId, @Param("ids") String ids);
 
     int getTotalCount(@Param("keyword") String keyword);
 

@@ -42,8 +42,17 @@ public class GameService {
 
 
     public List<Game> getAllGame(Integer page, Integer pageSize, String keyword, BigInteger typeId) {
-        
-        return mapper.getAll((page-1) * pageSize, pageSize, keyword,typeId);
+        List <BigInteger> typeIdList = typeService.getTypeIdList(keyword);
+        StringBuilder typeIdString = new StringBuilder();
+        for (BigInteger bigInteger : typeIdList) {
+            if (!typeIdString.isEmpty()){
+                typeIdString.append(",");
+            }
+            typeIdString.append(bigInteger.toString());
+        }
+        String ids = typeIdString.toString();
+
+        return mapper.getAll((page-1) * pageSize, pageSize, keyword,typeId, ids);
     }
 
 
