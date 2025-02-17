@@ -1,7 +1,7 @@
 package com.example.console.controller;
 
 import com.example.console.domain.TypeDetailVO;
-import com.example.console.domain.TypeListVO;
+import com.example.console.domain.ChildrenListVO;
 import com.example.console.domain.TypeVO;
 import com.example.module.entity.Type;
 import com.example.module.service.GameService;
@@ -30,27 +30,26 @@ public class TypeController {
     private GameService gameService;
 
     @RequestMapping("/list")
-    public TypeListVO typeList(@RequestParam(name = "page", defaultValue = "1") Integer page,
-                               @RequestParam(name = "keyword", required=false) String keyword) {
-        int pageSize = 10;
-        List<Type> typeList = typeService.getAll(page, pageSize, keyword);
-        Integer total = typeService.getTotalCount(keyword);
-        if (total == null){
-            log.info("查询数据错误total");
-        }
+    public List<TypeVO> typeList(@RequestParam(name = "keyword", required=false) String keyword) {
+        List<Type> typeList = typeService.getAll(keyword);
         List<TypeVO> typeVOList = new ArrayList<>();
         for (Type type : typeList) {
             TypeVO typeVO = new TypeVO();
+            List<ChildrenListVO> childrenList = new ArrayList<>();
+            for (Type children : typeService.getChildrenList(type.getId())) {
+                ChildrenListVO childrenListVO = new ChildrenListVO();
+                childrenListVO.setTypeId(children.getId())
+                        .setTypeName(children.getTypeName())
+                        .setImage(children.getImage());
+                childrenList.add(childrenListVO);
+            }
             typeVO.setTypeId(type.getId())
-                    .setParentId(type.getParentId())
                     .setTypeName(type.getTypeName())
-                    .setImage(type.getImage());
+                    .setImage(type.getImage())
+                    .setChildrenList(childrenList);
             typeVOList.add(typeVO);
         }
-        return new TypeListVO()
-                .setTypeList(typeVOList)
-                .setTotal(total)
-                .setPageSize(pageSize);
+        return  typeVOList;
     }
 
 

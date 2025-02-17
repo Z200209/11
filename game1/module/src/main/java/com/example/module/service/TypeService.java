@@ -38,13 +38,12 @@ public class TypeService {
         return mapper.delete(id, time);
     }
 
-    public List<Type> getAll(Integer page, Integer pageSize, String keyword) {
-        Integer offset = (page - 1) * pageSize;
-        return mapper.getAll(offset, pageSize, keyword);
+    public List<Type> getAll(String keyword) {
+        return mapper.getAll(keyword);
     }
 
-    public Integer getTotalCount(String keyword) {
-        return mapper.getTotalCount(keyword);
+    public List<Type> getChildrenList(BigInteger id) {
+        return mapper.getChildrenList(id);
     }
 
     public BigInteger edit (BigInteger id, String typeName,String image,BigInteger parentId) {

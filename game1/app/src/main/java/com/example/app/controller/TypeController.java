@@ -1,6 +1,6 @@
 package com.example.app.controller;
 
-import com.example.app.domain.TypeListVO;
+import com.example.app.domain.ChildrenListVO;
 import com.example.app.domain.TypeVO;
 import com.example.module.entity.Type;
 import com.example.module.service.TypeService;
@@ -21,25 +21,28 @@ public class TypeController {
     @Resource
     private TypeService typeService;
     @RequestMapping("/list")
-    public TypeListVO typeList(@RequestParam(name = "page", defaultValue = "1") Integer page,
-                               @RequestParam(name = "keyword", required=false)String keyword) {
-        int pageSize = 10;
-        List<Type> typeList = typeService.getAll(page, pageSize, keyword);
+    public List<TypeVO> typeList(@RequestParam(name = "keyword", required=false)String keyword) {
+        List<Type> typeList = typeService.getAll(keyword);
         if (typeList.isEmpty()){
             log.info("没有找到类型信息");
-            return null;
         }
-
         List<TypeVO> typeVOList = new ArrayList<>();
         for (Type type : typeList) {
             TypeVO typeVO = new TypeVO();
+            List<ChildrenListVO> childrenList = new ArrayList<>();
+            for (Type children : typeService.getChildrenList(type.getId())) {
+                ChildrenListVO childrenListVO = new ChildrenListVO();
+                childrenListVO.setTypeId(children.getId())
+                        .setTypeName(children.getTypeName())
+                        .setImage(children.getImage());
+                childrenList.add(childrenListVO);
+            }
             typeVO.setTypeId(type.getId())
                     .setTypeName(type.getTypeName())
-                    .setImage(type.getImage());
+                    .setImage(type.getImage())
+                    .setChildrenList(childrenList);
             typeVOList.add(typeVO);
         }
-        return new TypeListVO()
-                .setTypeList(typeVOList)
-                .setIsEnd(typeList.size()<pageSize);
+        return typeVOList;
     }
 }

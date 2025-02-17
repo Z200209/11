@@ -61,7 +61,6 @@
             AND type_id = #{typeId}
         </if>
         ORDER BY id ASC
-        LIMIT #{offset}, #{pageSize}
     </select>
 
 
