@@ -3,6 +3,8 @@ package com.example.module.service;
 import com.example.module.entity.Type;
 import com.example.module.mapper.TypeMapper;
 import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
@@ -10,6 +12,7 @@ import java.util.List;
 
 @Service
 public class TypeService {
+    private static final Logger log = LoggerFactory.getLogger(TypeService.class);
     @Resource
     private TypeMapper mapper;
 
@@ -38,12 +41,16 @@ public class TypeService {
         return mapper.delete(id, time);
     }
 
-    public List<Type> getAll(String keyword) {
+    public List<Type> getAll( String keyword) {
         return mapper.getAll(keyword);
     }
 
     public List<Type> getChildrenList(BigInteger id) {
         return mapper.getChildrenList(id);
+    }
+
+    public Integer getTotalCount(String keyword) {
+        return mapper.getTotalCount(keyword);
     }
 
     public BigInteger edit (BigInteger id, String typeName,String image,BigInteger parentId) {

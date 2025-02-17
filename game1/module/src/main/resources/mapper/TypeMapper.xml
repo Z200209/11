@@ -36,7 +36,7 @@
 
     <select id="getAll" parameterType="com.example.module.entity.Type">
         SELECT * FROM type
-        WHERE is_deleted = 0
+        WHERE is_deleted = 0 and parent_id is null
         <if test="keyword != null and keyword != ''">
             AND type_name LIKE CONCAT('%', #{keyword}, '%')
         </if>
