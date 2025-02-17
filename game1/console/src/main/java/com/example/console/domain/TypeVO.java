@@ -10,7 +10,6 @@ import java.util.List;
 @Accessors(chain = true)
 public class TypeVO {
     private BigInteger typeId;
-    private BigInteger parentId;
     private String typeName;
     private String image;
     private List<ChildrenListVO> childrenList;
