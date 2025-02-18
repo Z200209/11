@@ -62,21 +62,40 @@ public class GameController {
                 .setImages(Arrays.asList(game.getImages().split("\\$"))); // 将图片字符串按 "$" 拆分为列表
     }
 
+
+
+    public GameListVO gameList(Wp wp){
+        List<GameVO> gameVOList = new ArrayList<>();
+        Integer page = wp.getPage();
+        Integer pageSize = wp.getPageSize();
+        String keyword = wp.getKeyword();
+        BigInteger typeId = wp.getTypeId();
+        List<Game> gameList = gameService.getAllByWp(page, pageSize, keyword, typeId);
+        for (Game game : gameList) {
+            Type type = typeService.getById(game.getTypeId());
+            if (type == null) {
+                log.info("未找到游戏类型：" + game.getTypeId());
+                continue;
+            }
+            String typeName = type.getTypeName();
+            GameVO gameVO = new GameVO();
+            gameVO.setGameId(game.getId())
+                    .setGameName(game.getGameName())
+                    .setImages((game.getImages().split("\\$"))[0])
+                    .setTypeName(typeName);
+            gameVOList.add(gameVO);
+        }
+        return new GameListVO()
+                .setGameList(gameVOList)
+                .setIsEnd(gameList.size() < pageSize);
+
+    }
+
     @RequestMapping("/list")
     public GameListVO gameListBy(@RequestParam(name = "wp",required = false) String wp,
-                                 @RequestParam(name = "page", defaultValue = "1") Integer page,
                                  @RequestParam(name = "keyword", required = false) String keyword,
                                  @RequestParam(name = "typeId", required = false) BigInteger typeId) {
             if (wp == null) {
-
-
-            if (page != 1) {
-                return null;
-            }
-
-
-            else {
-
                 Wp wp1 = new Wp();
                 wp1.setKeyword(keyword)
                         .setTypeId(typeId)
@@ -90,78 +109,41 @@ public class GameController {
                         .setPageSize(10);
                 String json = JSON.toJSONString(wp2);
                 String encodedWp = Base64.getUrlEncoder().encodeToString(json.getBytes(StandardCharsets.UTF_8));
-                List<GameVO> gameVOList = new ArrayList<>();
-                List<Game> gameList = gameService.getAllByWp(wp1);
-                for (Game game : gameList) {
-                    Type type = typeService.getById(game.getTypeId());
-                    if (type == null) {
-                        log.info("未找到游戏类型：" + game.getTypeId());
-                        continue;
-                    }
-                    String typeName = type.getTypeName();
-                    GameVO gameVO = new GameVO();
-                    gameVO.setGameId(game.getId())
-                            .setGameName(game.getGameName())
-                            .setImages((game.getImages().split("\\$"))[0])
-                            .setTypeName(typeName);
-                    gameVOList.add(gameVO);
-                }
+                GameListVO gameList= gameList(wp1);
                 return new GameListVO()
-                        .setGameList(gameVOList)
-                        .setIsEnd(gameList.size() < 10)
+                        .setGameList(gameList.getGameList())
+                        .setIsEnd(gameList.getIsEnd())
                         .setWp(encodedWp);
+
             }
-
-
-        }
             else {
                 byte[] bytes = Base64.getUrlDecoder().decode(wp.getBytes(StandardCharsets.UTF_8));
                 String decodedWp = new String(bytes, StandardCharsets.UTF_8);
-                log.info("解码后的wp：{}", decodedWp + Arrays.toString(bytes));
-                System.out.println("解码后的wp：" + decodedWp);
                 String json = JSON.parseObject(decodedWp, String.class);
                 Wp wp1 = JSON.parseObject(json, Wp.class);
-                page = wp1.getPage();
+                int page = wp1.getPage();
                 if(page == 1){
                  return null;
                 }
                 else{
-                 List<GameVO> gameVOList = new ArrayList<>();
-                 List<Game> gameList = gameService.getAllByWp(wp1);
                  Wp wp2 = new Wp();
                  wp2.setKeyword(wp1.getKeyword())
                          .setTypeId(wp1.getTypeId())
                          .setPage(page + 1)
                          .setPageSize(10);
                  String encodedWp = Base64.getUrlEncoder().encodeToString(JSON.toJSONString(wp2).getBytes(StandardCharsets.UTF_8));
+                    GameListVO gameList= gameList(wp1);
+                    return new GameListVO()
+                            .setGameList(gameList.getGameList())
+                            .setIsEnd(gameList.getIsEnd())
+                            .setWp(encodedWp);
 
-                 for (Game game : gameList) {
-                     Type type = typeService.getById(game.getTypeId());
-                     if (type == null) {
-                         log.info("未找到游戏类型：" + game.getTypeId());
-                         continue;
-                     }
-                     String typeName = type.getTypeName();
-                     GameVO gameVO = new GameVO();
-                     gameVO.setGameId(game.getId())
-                             .setGameName(game.getGameName())
-                             .setImages((game.getImages().split("\\$"))[0])
-                             .setTypeName(typeName);
-                     gameVOList.add(gameVO);
                  }
-                 return new GameListVO()
-                         .setGameList(gameVOList)
-                         .setIsEnd(gameList.size() < 10)
-                         .setWp(encodedWp);
              }
 
-
-        }
-
-
+             }
     }
 
-}
 
 
 
