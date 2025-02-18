@@ -70,7 +70,7 @@ public class GameController {
         Integer pageSize = wp.getPageSize();
         String keyword = wp.getKeyword();
         BigInteger typeId = wp.getTypeId();
-        List<Game> gameList = gameService.getAllByWp(page, pageSize, keyword, typeId);
+        List<Game> gameList = gameService.getAllGame(page, pageSize, keyword, typeId);
         for (Game game : gameList) {
             Type type = typeService.getById(game.getTypeId());
             if (type == null) {

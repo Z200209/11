@@ -56,19 +56,6 @@ public class GameService {
         return mapper.getAll((page-1) * pageSize, pageSize, keyword,typeId, ids);
     }
 
-    public List<Game> getAllByWp (Integer page, Integer pageSize, String keyword, BigInteger typeId) {
-        List <BigInteger> typeIdList = typeService.getTypeIdList(keyword);
-        StringBuilder typeIdString = new StringBuilder();
-        for (BigInteger bigInteger : typeIdList) {
-            if (!typeIdString.isEmpty()){
-                typeIdString.append(",");
-            }
-            typeIdString.append(bigInteger.toString());
-        }
-        String ids = typeIdString.toString();
-        Integer offset = (page-1) * pageSize;
-        return mapper.getAll(offset, pageSize, keyword, typeId, ids);
-    }
 
 
     public BigInteger edit (BigInteger id, String gameName, Float price, String gameIntroduction, String gameDate, String gamePublisher, String images, BigInteger typeId) {
