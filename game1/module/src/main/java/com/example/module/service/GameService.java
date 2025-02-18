@@ -3,6 +3,7 @@ package com.example.module.service;
 
 import com.example.module.entity.Game;
 import com.example.module.entity.Type;
+import com.example.module.entity.Wp;
 import com.example.module.mapper.GameMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +54,26 @@ public class GameService {
         String ids = typeIdString.toString();
 
         return mapper.getAll((page-1) * pageSize, pageSize, keyword,typeId, ids);
+    }
+
+    public List<Game> getAllByWp (Wp wp) {
+        List <BigInteger> typeIdList = typeService.getTypeIdList(wp.getKeyword());
+        StringBuilder typeIdString = new StringBuilder();
+        for (BigInteger bigInteger : typeIdList) {
+            if (!typeIdString.isEmpty()){
+                typeIdString.append(",");
+            }
+            typeIdString.append(bigInteger.toString());
+        }
+        String ids = typeIdString.toString();
+        Integer pageSize = wp.getPageSize();
+        Integer page = wp.getPage();
+        Integer offset = (page-1) * pageSize;
+        BigInteger TypeId = wp.getTypeId();
+        String keyword = wp.getKeyword();
+
+
+        return mapper.getAll(offset, pageSize, keyword, TypeId, ids);
     }
 
 

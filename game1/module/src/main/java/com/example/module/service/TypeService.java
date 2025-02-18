@@ -42,11 +42,11 @@ public class TypeService {
     }
 
     public List<Type> getAll( String keyword) {
-        return mapper.getAll(keyword);
+        return mapper.getParentTypeList(keyword);
     }
 
     public List<Type> getChildrenList(BigInteger id) {
-        return mapper.getChildrenList(id);
+        return mapper.getChildrenTypeList(id);
     }
 
     public Integer getTotalCount(String keyword) {

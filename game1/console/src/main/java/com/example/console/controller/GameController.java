@@ -1,4 +1,5 @@
 package com.example.console.controller;
+
 import com.example.console.domain.*;
 import com.example.module.entity.Game;
 import com.example.module.entity.Type;
@@ -7,12 +8,10 @@ import com.example.module.service.TypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @RestController
@@ -191,7 +190,14 @@ public class GameController {
                     .setPageSize(pageSize);
     }
 
-}
+
+
+
+    }
+
+
+
+
 
 
 
