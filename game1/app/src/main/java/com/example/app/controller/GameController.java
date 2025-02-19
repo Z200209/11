@@ -62,15 +62,40 @@ public class GameController {
                 .setImages(Arrays.asList(game.getImages().split("\\$"))); // 将图片字符串按 "$" 拆分为列表
     }
 
+        @RequestMapping("/list")
+        public GameListVO gameList(@RequestParam(name = "page", defaultValue = "1") Integer page,
+                                   @RequestParam(name = "keyword", required=false) String keyword,
+                                   @RequestParam(name = "typeId", required=false) BigInteger typeId,
+                                   @RequestParam(name = "wp", required=false)String wp) {
+        int currentPageSize = 10;
+        Integer currentPage;
 
+        if (wp!=null&& !wp.isEmpty()) {
+            byte[] bytes = Base64.getDecoder().decode(wp);
+            String json = new String(bytes, StandardCharsets.UTF_8);
+            Wp reviceWp = JSON.parseObject(json, Wp.class);
+            currentPage = reviceWp.getPage();
+            if (currentPage ==1){
+                return  null;
+            }
 
-    public GameListVO gameList(Wp wp){
+        }
+        else {
+            currentPage = page;
+            if (currentPage !=1){
+                return  null;
+            }
+        }
+        List<Game> gameList = gameService.getAllGame(currentPage, currentPageSize, keyword, typeId);
+        Wp outputWp = new Wp();
+        outputWp.setKeyword(keyword)
+                .setTypeId(typeId)
+                .setPage(currentPage+1)
+                .setPageSize(currentPageSize);
+
+        String encodeWp= Base64.getEncoder().encodeToString(JSON.toJSONString(outputWp).getBytes(StandardCharsets.UTF_8));
+
         List<GameVO> gameVOList = new ArrayList<>();
-        Integer page = wp.getPage();
-        Integer pageSize = wp.getPageSize();
-        String keyword = wp.getKeyword();
-        BigInteger typeId = wp.getTypeId();
-        List<Game> gameList = gameService.getAllGame(page, pageSize, keyword, typeId);
         for (Game game : gameList) {
             Type type = typeService.getById(game.getTypeId());
             if (type == null) {
@@ -78,71 +103,23 @@ public class GameController {
                 continue;
             }
             String typeName = type.getTypeName();
-            GameVO gameVO = new GameVO();
-            gameVO.setGameId(game.getId())
+
+            GameVO gameVO = new GameVO()
+                    .setGameId(game.getId())
                     .setGameName(game.getGameName())
-                    .setImages((game.getImages().split("\\$"))[0])
-                    .setTypeName(typeName);
+                    .setTypeName(typeName)
+                    .setImages(game.getImages().split("\\$")[0]);
             gameVOList.add(gameVO);
         }
         return new GameListVO()
                 .setGameList(gameVOList)
-                .setIsEnd(gameList.size() < pageSize);
+                .setWp(encodeWp);
 
-    }
 
-    @RequestMapping("/list")
-    public GameListVO gameListBy(@RequestParam(name = "wp",required = false) String wp,
-                                 @RequestParam(name = "keyword", required = false) String keyword,
-                                 @RequestParam(name = "typeId", required = false) BigInteger typeId) {
-            if (wp == null) {
-                Wp wp1 = new Wp();
-                wp1.setKeyword(keyword)
-                        .setTypeId(typeId)
-                        .setPage(1)
-                        .setPageSize(10);
+        }
 
-                Wp wp2 = new Wp();
-                wp2.setKeyword(keyword)
-                    .setTypeId(typeId)
-                     .setPage(2)
-                        .setPageSize(10);
-                String json = JSON.toJSONString(wp2);
-                String encodedWp = Base64.getUrlEncoder().encodeToString(json.getBytes(StandardCharsets.UTF_8));
-                GameListVO gameList= gameList(wp1);
-                return new GameListVO()
-                        .setGameList(gameList.getGameList())
-                        .setIsEnd(gameList.getIsEnd())
-                        .setWp(encodedWp);
 
-            }
-            else {
-                byte[] bytes = Base64.getUrlDecoder().decode(wp.getBytes(StandardCharsets.UTF_8));
-                String decodedWp = new String(bytes, StandardCharsets.UTF_8);
-                String json = JSON.parseObject(decodedWp, String.class);
-                Wp wp1 = JSON.parseObject(json, Wp.class);
-                int page = wp1.getPage();
-                if(page == 1){
-                 return null;
-                }
-                else{
-                 Wp wp2 = new Wp();
-                 wp2.setKeyword(wp1.getKeyword())
-                         .setTypeId(wp1.getTypeId())
-                         .setPage(page + 1)
-                         .setPageSize(10);
-                 String encodedWp = Base64.getUrlEncoder().encodeToString(JSON.toJSONString(wp2).getBytes(StandardCharsets.UTF_8));
-                    GameListVO gameList= gameList(wp1);
-                    return new GameListVO()
-                            .setGameList(gameList.getGameList())
-                            .setIsEnd(gameList.getIsEnd())
-                            .setWp(encodedWp);
-
-                 }
-             }
-
-             }
-    }
+}
 
 
 

@@ -9,6 +9,5 @@ import java.util.List;
 @Accessors(chain = true)
 public class GameListVO {
    List<GameVO> gameList;
-   private Boolean isEnd;
    private String wp;
 }
