@@ -63,17 +63,13 @@ public class GameController {
     }
 
         @RequestMapping("/list")
-        public GameListVO gameList(@RequestParam(name = "page", defaultValue = "1",required = false) Integer page,
-                                   @RequestParam(name = "keyword", required=false) String keyword,
+        public GameListVO gameList(@RequestParam(name = "keyword", required=false) String keyword,
                                    @RequestParam(name = "typeId", required=false) BigInteger typeId,
                                    @RequestParam(name = "wp", required=false)String wp) {
         int currentPageSize = 10;
         Integer currentPage;
 
         if (wp!=null&& !wp.isEmpty()) {
-            if(page!=null){
-                return null;
-            }
             byte[] bytes = Base64.getDecoder().decode(wp);
             String json = new String(bytes, StandardCharsets.UTF_8);
             Wp reviceWp = JSON.parseObject(json, Wp.class);
@@ -81,13 +77,15 @@ public class GameController {
             if (currentPage ==1){
                 return null;
             }
+            currentPageSize = reviceWp.getPageSize();
+            keyword = reviceWp.getKeyword();
+            typeId = reviceWp.getTypeId();
         }
         else {
-            currentPage = page;
-            if (currentPage!= 1){
-                return null;
-            }
+            currentPage = 1;
         }
+
+
         List<Game> gameList = gameService.getAllGame(currentPage, currentPageSize, keyword, typeId);
         Wp outputWp = new Wp();
         outputWp.setKeyword(keyword)
