@@ -63,7 +63,7 @@ public class GameController {
     }
 
         @RequestMapping("/list")
-        public GameListVO gameList(@RequestParam(name = "page", defaultValue = "1") Integer page,
+        public GameListVO gameList(@RequestParam(name = "page", defaultValue = "1",required = false) Integer page,
                                    @RequestParam(name = "keyword", required=false) String keyword,
                                    @RequestParam(name = "typeId", required=false) BigInteger typeId,
                                    @RequestParam(name = "wp", required=false)String wp) {
