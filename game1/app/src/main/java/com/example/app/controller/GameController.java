@@ -71,19 +71,21 @@ public class GameController {
         Integer currentPage;
 
         if (wp!=null&& !wp.isEmpty()) {
+            if(page!=null){
+                return null;
+            }
             byte[] bytes = Base64.getDecoder().decode(wp);
             String json = new String(bytes, StandardCharsets.UTF_8);
             Wp reviceWp = JSON.parseObject(json, Wp.class);
             currentPage = reviceWp.getPage();
             if (currentPage ==1){
-                return  null;
+                return null;
             }
-
         }
         else {
             currentPage = page;
-            if (currentPage !=1){
-                return  null;
+            if (currentPage!= 1){
+                return null;
             }
         }
         List<Game> gameList = gameService.getAllGame(currentPage, currentPageSize, keyword, typeId);
@@ -117,7 +119,6 @@ public class GameController {
 
 
         }
-
 
 }
 
