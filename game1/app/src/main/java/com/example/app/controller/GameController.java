@@ -85,8 +85,22 @@ public class GameController {
             currentPage = 1;
         }
 
-
         List<Game> gameList = gameService.getAllGame(currentPage, currentPageSize, keyword, typeId);
+        Set<BigInteger> typeIdSet = new HashSet<>();
+        for (Game game : gameList) {
+            BigInteger tid = game.getTypeId();
+            if (tid != null) {
+                typeIdSet.add(tid);
+            }
+        }
+            List<Type> types = new ArrayList<>();
+            if (!typeIdSet.isEmpty()) {
+                types = typeService.getTypeNameById(typeIdSet);
+            }
+        Map<BigInteger , String> typemap = new HashMap<>();
+            for (Type type : types) {
+                typemap.put(type.getId(), type.getTypeName());
+            }
         Wp outputWp = new Wp();
         outputWp.setKeyword(keyword)
                 .setTypeId(typeId)
@@ -97,13 +111,8 @@ public class GameController {
 
         List<GameVO> gameVOList = new ArrayList<>();
         for (Game game : gameList) {
-            Type type = typeService.getById(game.getTypeId());
-            if (type == null) {
-                log.info("未找到游戏类型：" + game.getTypeId());
-                continue;
-            }
-            String typeName = type.getTypeName();
-
+            BigInteger typeIds = game.getTypeId();
+            String typeName = typemap.get(typeIds);
             GameVO gameVO = new GameVO()
                     .setGameId(game.getId())
                     .setGameName(game.getGameName())

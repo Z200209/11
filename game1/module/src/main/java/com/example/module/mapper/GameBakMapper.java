@@ -1,6 +1,7 @@
 package com.example.module.mapper;
 
 import com.example.module.entity.Game;
+import com.example.module.entity.listDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -10,7 +11,7 @@ import java.math.BigInteger;
 import java.util.List;
 
 @Mapper
-public interface GameMapper  {
+public interface GameBakMapper {
     @Select("SELECT * FROM game WHERE id = #{id} AND is_deleted = 0")
     Game getById(BigInteger id);
 
@@ -25,11 +26,6 @@ public interface GameMapper  {
     int delete(@Param("id") BigInteger id, @Param("time") Integer time);
 
 
-    List<Game> getAll(@Param("offset") Integer offset, @Param("pageSize") Integer pageSize , @Param("keyword") String keyword, @Param("typeId") BigInteger typeId, @Param("ids") String ids);
-
-    int getTotalCount(@Param("keyword") String keyword);
-
-    @Select("SELECT id from game where type_id = #{type_id} and is_deleted = 0")
-    List<BigInteger> isExistByTypeId(@Param("type_id") BigInteger type_id);
+    List<listDTO> getAll(@Param("offset") Integer offset, @Param("pageSize") Integer pageSize , @Param("keyword") String keyword, @Param("typeId") BigInteger typeId);
 
 }

@@ -14,6 +14,9 @@ public interface TypeMapper {
     @Select("select * from type where id = #{id} and is_deleted = 0 ")
     Type getById(BigInteger id);
 
+    @Select("select type_name , id from type where id IN(${ids}) and is_deleted =0")
+    List<Type> getTypeNameById(@Param("ids") String ids);
+
     @Select("select * from type where id = #{id} ")
     Type extractById(BigInteger id);
 

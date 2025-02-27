@@ -57,7 +57,6 @@ public class GameService {
     }
 
 
-
     public BigInteger edit (BigInteger id, String gameName, Float price, String gameIntroduction, String gameDate, String gamePublisher, String images, BigInteger typeId) {
         if (gameName == null || gameName.isEmpty()) {
             throw new RuntimeException("gameName 不能为空");

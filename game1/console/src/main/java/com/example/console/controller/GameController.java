@@ -162,20 +162,28 @@ public class GameController {
             int pageSize = 10;
             List<Game> gameList = gameService.getAllGame(page, pageSize, keyword, typeId);
             Integer total = gameService.getTotalCount(keyword);
+            Set <BigInteger> typeIdSet = new HashSet<>();
+            for (Game game : gameList) {
+                BigInteger tid = game.getTypeId();
+                if (tid != null) {
+                    typeIdSet.add(tid);
+                }
+            }
+            List<Type> types = new ArrayList<>();
+            if (!typeIdSet.isEmpty()) {
+                types = typeService.getTypeNameById(typeIdSet);
+            }
+            Map<BigInteger , String> typemap = new HashMap<>();
+            for (Type type : types) {
+                typemap.put(type.getId(), type.getTypeName());
+            }
             if (total == null){
                 log.info("查询数据错误");
             }
             List <GameVO> gameVOList = new ArrayList<>();
             for (Game game : gameList) {
-                Type type = typeService.getById(game.getTypeId());
-                if (type == null){
-                    log.info("未找到游戏类型："+ game.getTypeId());
-                    continue;
-                }
-                String typeName = type.getTypeName();
-                if (typeName == null) {
-                    log.info("未找到游戏类型名称："+ type.getId());
-                }
+                BigInteger typeIds = game.getTypeId();
+                String typeName = typemap.get(typeIds);
                 GameVO gameVO = new GameVO()
                         .setTypeId(game.getTypeId())
                         .setGameId(game.getId())

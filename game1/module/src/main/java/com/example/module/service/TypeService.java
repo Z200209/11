@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class TypeService {
@@ -19,6 +20,21 @@ public class TypeService {
     public Type getById(BigInteger id) {
         return mapper.getById(id);
     }
+
+    public List<Type> getTypeNameById(Set<BigInteger> typeIdSet) {
+        StringBuilder typeIdList = new StringBuilder();
+        for (BigInteger bigInteger : typeIdSet) {
+            if (!typeIdList.isEmpty()){
+                typeIdList.append(",");
+            }
+            typeIdList.append(bigInteger.toString());
+        }
+        String ids = typeIdList.toString();
+
+        return mapper.getTypeNameById(ids);
+    }
+
+
 
     public Type extractById(BigInteger id) {
         return mapper.extractById(id);
