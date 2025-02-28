@@ -171,19 +171,22 @@ public class GameController {
             }
             List<Type> types = new ArrayList<>();
             if (!typeIdSet.isEmpty()) {
-                types = typeService.getTypeNameById(typeIdSet);
+                types = typeService.getTypeByIds(typeIdSet);
             }
-            Map<BigInteger , String> typemap = new HashMap<>();
+            Map<BigInteger , String> typeMap = new HashMap<>();
             for (Type type : types) {
-                typemap.put(type.getId(), type.getTypeName());
+                typeMap.put(type.getId(), type.getTypeName());
             }
             if (total == null){
                 log.info("查询数据错误");
             }
             List <GameVO> gameVOList = new ArrayList<>();
             for (Game game : gameList) {
-                BigInteger typeIds = game.getTypeId();
-                String typeName = typemap.get(typeIds);
+                String typeName = typeMap.get(game.getTypeId());
+                if (typeName == null){
+                    log.info("未找到游戏类型名称：{}", game.getTypeId());
+                    continue;
+                }
                 GameVO gameVO = new GameVO()
                         .setTypeId(game.getTypeId())
                         .setGameId(game.getId())
@@ -198,10 +201,7 @@ public class GameController {
                     .setPageSize(pageSize);
     }
 
-
-
-
-    }
+}
 
 
 

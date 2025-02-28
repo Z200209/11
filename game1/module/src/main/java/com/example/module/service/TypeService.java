@@ -21,7 +21,7 @@ public class TypeService {
         return mapper.getById(id);
     }
 
-    public List<Type> getTypeNameById(Set<BigInteger> typeIdSet) {
+    public List<Type> getTypeByIds(Set<BigInteger> typeIdSet) {
         StringBuilder typeIdList = new StringBuilder();
         for (BigInteger bigInteger : typeIdSet) {
             if (!typeIdList.isEmpty()){
@@ -31,7 +31,7 @@ public class TypeService {
         }
         String ids = typeIdList.toString();
 
-        return mapper.getTypeNameById(ids);
+        return mapper.getTypeByIds(ids);
     }
 
 

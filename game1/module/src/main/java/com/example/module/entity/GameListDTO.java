@@ -6,7 +6,7 @@ import lombok.experimental.Accessors;
 import java.math.BigInteger;
 @Data
 @Accessors(chain = true)
-public class listDTO {
+public class GameListDTO {
     private BigInteger id;
     private String gameName;
     private String images;

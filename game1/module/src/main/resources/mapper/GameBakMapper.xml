@@ -47,7 +47,7 @@
     </update>
 
 
-    <resultMap id="gameTypeResultMap" type="com.example.module.entity.listDTO">
+    <resultMap id="gameTypeResultMap" type="com.example.module.entity.GameListDTO">
         <id     property="id"       column="game_id" />
         <result property="gameName" column="game_name" />
         <result property="images"   column="images" />

@@ -1,7 +1,7 @@
 package com.example.module.mapper;
 
 import com.example.module.entity.Game;
-import com.example.module.entity.listDTO;
+import com.example.module.entity.GameListDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -26,6 +26,6 @@ public interface GameBakMapper {
     int delete(@Param("id") BigInteger id, @Param("time") Integer time);
 
 
-    List<listDTO> getAll(@Param("offset") Integer offset, @Param("pageSize") Integer pageSize , @Param("keyword") String keyword, @Param("typeId") BigInteger typeId);
+    List<GameListDTO> getAll(@Param("offset") Integer offset, @Param("pageSize") Integer pageSize , @Param("keyword") String keyword, @Param("typeId") BigInteger typeId);
 
 }
