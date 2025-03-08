@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.example.app.domain.GameInfoVO;
 import com.example.app.domain.GameVO;
 import com.example.app.domain.GameListVO;
+import com.example.app.domain.ImageVO;
 import com.example.module.entity.Game;
 import com.example.module.entity.Type;
 import com.example.module.entity.Wp;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/game/app")
@@ -116,11 +119,25 @@ public class GameController {
                 log.info("未找到游戏类型名称：{}", game.getTypeId());
                 continue;
             }
+                String image = game.getImages().split("\\$")[0];
+                String regex = ".*_(\\d+)x(\\d+)\\.png";
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(image);
+                // 提取宽高并计算 ar
+                float ar = 0;
+                if (matcher.find()) {
+                    int width = Integer.parseInt(matcher.group(1)); // 提取宽度
+                    int height = Integer.parseInt(matcher.group(2)); // 提取高度
+                    ar = (float) width / height;
+                }
+                ImageVO imageVO = new ImageVO()
+                        .setSrc(image)
+                        .setAr(ar);
             GameVO gameVO = new GameVO()
                     .setGameId(game.getId())
                     .setGameName(game.getGameName())
                     .setTypeName(typeName)
-                    .setImages(game.getImages().split("\\$")[0]);
+                    .setImage(imageVO);
             gameVOList.add(gameVO);
         }
         return new GameListVO()

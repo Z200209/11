@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,5 +45,22 @@ public class TypeController {
             typeVOList.add(typeVO);
         }
         return typeVOList;
+    }
+
+    @RequestMapping("/game/app/childrenList")
+    public List<ChildrenListVO> childrenList(@RequestParam(name = "typeId") BigInteger typeId) {
+        List<Type> childrenList = typeService.getChildrenList(typeId);
+        if (childrenList.isEmpty()){
+            log.info("没有找到类型信息");
+        }
+        List<ChildrenListVO> childrenListVOList = new ArrayList<>();
+        for (Type children : childrenList) {
+            ChildrenListVO childrenListVO = new ChildrenListVO();
+            childrenListVO.setTypeId(children.getId());
+            childrenListVO.setTypeName(children.getTypeName());
+            childrenListVO.setImage(children.getImage());
+            childrenListVOList.add(childrenListVO);
+        }
+        return childrenListVOList;
     }
 }

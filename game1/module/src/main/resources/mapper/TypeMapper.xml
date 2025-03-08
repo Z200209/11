@@ -52,4 +52,9 @@
             LIMIT 999
     </select>
 
+    <select id="getRootTypes" resultType="com.example.module.entity.Type">
+    SELECT * FROM type WHERE parent_id IS NULL OR parent_id = 0
+</select>
+
+
 </mapper>

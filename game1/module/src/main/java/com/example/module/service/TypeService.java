@@ -3,8 +3,6 @@ package com.example.module.service;
 import com.example.module.entity.Type;
 import com.example.module.mapper.TypeMapper;
 import jakarta.annotation.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
@@ -13,7 +11,6 @@ import java.util.Set;
 
 @Service
 public class TypeService {
-    private static final Logger log = LoggerFactory.getLogger(TypeService.class);
     @Resource
     private TypeMapper mapper;
 
@@ -105,6 +102,9 @@ public class TypeService {
         return mapper.getTypeIdList(keyword);
     }
 
+    public List<Type> getRootTypes() {
+        return mapper.getRootTypes();
+    }
 
 }
 

@@ -36,10 +36,6 @@ public interface TypeMapper {
     List<BigInteger> getTypeIdList(@Param("keyword") String keyword);
 
 
-
-
-
-
-
+    List<Type> getRootTypes();
 
 }

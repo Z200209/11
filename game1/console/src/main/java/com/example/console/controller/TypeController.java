@@ -2,6 +2,7 @@ package com.example.console.controller;
 
 import com.example.console.domain.TypeDetailVO;
 import com.example.console.domain.ChildrenListVO;
+import com.example.console.domain.TypeTreeVO;
 import com.example.console.domain.TypeVO;
 import com.example.module.entity.Type;
 import com.example.module.service.GameService;
@@ -134,5 +135,53 @@ public class TypeController {
         }
 
     }
+
+@RequestMapping("/tree")
+public List<TypeTreeVO> typeTree(@RequestParam(name = "keyword", required = false) String keyword) {
+    List<Type> rootTypes = typeService.getRootTypes();
+    List<TypeTreeVO> typeTreeList = new ArrayList<>();
+
+    // 遍历根节点，递归构建类型树
+    for (Type rootType : rootTypes) {
+        // 递归构建当前节点及其子节点
+        TypeTreeVO typeTreeVO = buildTree(rootType, keyword);
+        if (typeTreeVO != null) {
+            typeTreeList.add(typeTreeVO);
+        }
+    }
+    return typeTreeList;
+}
+
+private TypeTreeVO buildTree(Type type, String keyword) {
+    TypeTreeVO typeTreeVO = new TypeTreeVO();
+    typeTreeVO.setImage(type.getImage());
+    typeTreeVO.setTypeId(type.getId());
+    typeTreeVO.setTypeName(type.getTypeName());
+    List<Type> children = typeService.getChildrenList(type.getId());
+    List<TypeTreeVO> childrenList = new ArrayList<>();
+
+    // 递归构建子节点
+    for (Type child : children) {
+        TypeTreeVO childTreeVO = buildTree(child, keyword);
+        if (childTreeVO != null) {
+            childrenList.add(childTreeVO);
+        }
+    }
+    typeTreeVO.setChildrenList(childrenList);
+
+    // 根据关键字过滤
+    if (keyword != null && !keyword.isEmpty()) {
+        if (!typeTreeVO.getTypeName().contains(keyword) && childrenList.isEmpty()) {
+            return null; 
+        }
+    }
+
+    return typeTreeVO;
+}
+
+
+
+
+
 
 }
