@@ -64,10 +64,7 @@ public class OssController {
         }
 
         OssConfigVO ossConfigVO = new OssConfigVO();
-ossConfigVO.setEndpoint(System.getenv("ALIBABA_CLOUD_ENDPOINT"));
-ossConfigVO.setAccessKeyId(System.getenv("ALIBABA_CLOUD_ACCESS_KEY_ID"));
-ossConfigVO.setAccessKeySecret(System.getenv("ALIBABA_CLOUD_ACCESS_KEY_SECRET"));
-ossConfigVO.setBucketName("Name");
+
 
 
         // 创建OSSClient实例
