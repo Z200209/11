@@ -66,10 +66,12 @@ public class OssController {
         }
 
         OssConfigVO ossConfigVO = new OssConfigVO();
-        ossConfigVO.setEndpoint("oss-cn-beijing.aliyuncs.com");
-        ossConfigVO.setAccessKeyId("LTAI5tDrzyFkerTfdjbn3KVL");
-        ossConfigVO.setAccessKeySecret("LoL0iFWyl1MKTT1BpdzcprUCuTFFf3");
-        ossConfigVO.setBucketName("zzt3");
+// 从环境变量中读取敏感信息
+ossConfigVO.setEndpoint(System.getenv("ALIBABA_CLOUD_ENDPOINT"));
+ossConfigVO.setAccessKeyId(System.getenv("ALIBABA_CLOUD_ACCESS_KEY_ID"));
+ossConfigVO.setAccessKeySecret(System.getenv("ALIBABA_CLOUD_ACCESS_KEY_SECRET"));
+ossConfigVO.setBucketName("zzt3");
+
 
         // 创建OSSClient实例
         OSS ossClient = new OSSClientBuilder().build(ossConfigVO.getEndpoint(), ossConfigVO.getAccessKeyId(), ossConfigVO.getAccessKeySecret());
