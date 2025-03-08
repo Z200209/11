@@ -67,7 +67,7 @@ public class OssController {
 ossConfigVO.setEndpoint(System.getenv("ALIBABA_CLOUD_ENDPOINT"));
 ossConfigVO.setAccessKeyId(System.getenv("ALIBABA_CLOUD_ACCESS_KEY_ID"));
 ossConfigVO.setAccessKeySecret(System.getenv("ALIBABA_CLOUD_ACCESS_KEY_SECRET"));
-ossConfigVO.setBucketName("zzt3");
+ossConfigVO.setBucketName("Name");
 
 
         // 创建OSSClient实例
