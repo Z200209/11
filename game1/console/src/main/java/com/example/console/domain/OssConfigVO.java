@@ -3,8 +3,6 @@ package com.example.console.domain;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.stereotype.Component;
-
-@Component
 @Data
 @Accessors(chain = true)
 public class OssConfigVO {
