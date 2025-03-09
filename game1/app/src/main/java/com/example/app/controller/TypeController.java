@@ -1,8 +1,9 @@
 package com.example.app.controller;
 
-import com.example.app.domain.ChildrenListVO;
-import com.example.app.domain.TypeVO;
+import com.example.app.domain.*;
+import com.example.module.entity.Game;
 import com.example.module.entity.Type;
+import com.example.module.service.GameService;
 import com.example.module.service.TypeService;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -21,6 +22,8 @@ public class TypeController {
     private static final Logger log = LoggerFactory.getLogger(TypeController.class);
     @Resource
     private TypeService typeService;
+    @Resource
+    private GameService gameService;
     @RequestMapping("/list")
     public List<TypeVO> typeList(@RequestParam(name = "keyword", required=false)String keyword) {
         List<Type> typeList = typeService.getAll(keyword);
@@ -30,9 +33,9 @@ public class TypeController {
         List<TypeVO> typeVOList = new ArrayList<>();
         for (Type type : typeList) {
             TypeVO typeVO = new TypeVO();
-            List<ChildrenListVO> childrenList = new ArrayList<>();
+            List<ChildrenVO> childrenList = new ArrayList<>();
             for (Type children : typeService.getChildrenList(type.getId())) {
-                ChildrenListVO childrenListVO = new ChildrenListVO();
+                ChildrenVO childrenListVO = new ChildrenVO();
                 childrenListVO.setTypeId(children.getId())
                         .setTypeName(children.getTypeName())
                         .setImage(children.getImage());
@@ -48,19 +51,44 @@ public class TypeController {
     }
 
     @RequestMapping("/game/app/childrenList")
-    public List<ChildrenListVO> childrenList(@RequestParam(name = "typeId") BigInteger typeId) {
+    public ChildrenListVO childrenList(@RequestParam(name = "typeId") BigInteger typeId) {
         List<Type> childrenList = typeService.getChildrenList(typeId);
         if (childrenList.isEmpty()){
             log.info("没有找到类型信息");
         }
-        List<ChildrenListVO> childrenListVOList = new ArrayList<>();
-        for (Type children : childrenList) {
-            ChildrenListVO childrenListVO = new ChildrenListVO();
-            childrenListVO.setTypeId(children.getId());
-            childrenListVO.setTypeName(children.getTypeName());
-            childrenListVO.setImage(children.getImage());
-            childrenListVOList.add(childrenListVO);
+        List<ChildrenVO> childrenVOList = new ArrayList<>();
+        for (Type children : childrenList){
+            if (children == null){
+                log.info("没有找到类型信息");
+                continue;
+            }
+            ChildrenVO childrenVO = new ChildrenVO();
+            childrenVO.setTypeId(children.getId())
+                    .setTypeName(children.getTypeName())
+                    .setImage(children.getImage());
+            childrenVOList.add(childrenVO);
         }
-        return childrenListVOList;
+
+        List<ChildreGameVO> childreGameVOList = new ArrayList<>();
+        for (Game game : gameService.getAllGameByTypeId(typeId)){
+            if (game == null){
+                log.info("没有找到游戏信息");
+                continue;
+            }
+            ChildreGameVO childreGameVO = new ChildreGameVO();
+            childreGameVO.setGameId(game.getId())
+                    .setGameName(game.getGameName())
+                    .setImage(game.getImages().split("\\$")[0])
+                    .setTypeName(typeService.getById(game.getTypeId()).getTypeName());
+            childreGameVOList.add(childreGameVO);
+        }
+        if (childrenVOList.isEmpty()){
+            log.info("没有找到类型信息");
+        }
+        return new ChildrenListVO()
+                .setChildrenList(childrenVOList)
+                .setGameList(childreGameVOList);
     }
+
+
 }

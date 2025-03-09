@@ -4,13 +4,11 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigInteger;
-import java.util.List;
-
 @Data
 @Accessors(chain = true)
-public class TypeVO {
+public class ChildrenVO {
     private BigInteger typeId;
     private String typeName;
     private String image;
-    private List<ChildrenVO> childrenList;
+
 }

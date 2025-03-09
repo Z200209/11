@@ -56,6 +56,10 @@ public class GameService {
         return mapper.getAll((page-1) * pageSize, pageSize, keyword,typeId, ids);
     }
 
+    public List<Game> getAllGameByTypeId(BigInteger typeId) {
+        return mapper.getAllGameByTypeId(typeId);
+    }
+
 
     public BigInteger edit (BigInteger id, String gameName, Float price, String gameIntroduction, String gameDate, String gamePublisher, String images, BigInteger typeId) {
         if (gameName == null || gameName.isEmpty()) {
