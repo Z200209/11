@@ -1,7 +1,9 @@
 package com.example.console.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.example.console.domain.*;
 import com.example.module.entity.Game;
+import com.example.module.entity.Sign;
 import com.example.module.entity.Type;
 import com.example.module.service.GameService;
 import com.example.module.service.TypeService;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -158,7 +161,18 @@ public class GameController {
     @RequestMapping("/list")
     public ListVO gameList(@RequestParam(name = "page", defaultValue = "1") Integer page,
                            @RequestParam(name = "keyword", required=false) String keyword,
-                           @RequestParam(name = "typeId", required=false) BigInteger typeId) {
+                           @RequestParam(name = "typeId", required=false) BigInteger typeId,
+                           @RequestParam(name = "sign", required=false) String sign) {
+
+        if(sign==null){
+            throw new RuntimeException("用户未登录");
+        }
+        byte[] bytes = Base64.getDecoder().decode(sign);
+        String json = new String(bytes, StandardCharsets.UTF_8);
+        Sign reviceSign = JSON.parseObject(json, Sign.class);
+        if (reviceSign.getExpirationTime()<(int) (System.currentTimeMillis() / 1000)){
+            throw new RuntimeException("登录已过期");
+        }
             int pageSize = 10;
             List<Game> gameList = gameService.getAllGame(page, pageSize, keyword, typeId);
             Integer total = gameService.getTotalCount(keyword);

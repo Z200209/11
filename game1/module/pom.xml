@@ -33,7 +33,12 @@
             <version>1.18.36</version> <!-- 请根据需要选择最新版本 -->
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.2.23</version>
+            <scope>compile</scope>
+        </dependency>
 
 
     </dependencies>
