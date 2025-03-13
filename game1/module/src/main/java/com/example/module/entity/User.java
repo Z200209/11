@@ -14,4 +14,5 @@ public class User {
     private String avatar;
     private Integer createTime;
     private Integer updateTime;
+
 }

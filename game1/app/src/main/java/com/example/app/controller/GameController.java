@@ -73,7 +73,7 @@ public class GameController {
         Integer currentPage;
 
         if (wp!=null&& !wp.isEmpty()) {
-            byte[] bytes = Base64.getDecoder().decode(wp);
+            byte[] bytes = Base64.getUrlDecoder().decode(wp);
             String json = new String(bytes, StandardCharsets.UTF_8);
             Wp reviceWp = JSON.parseObject(json, Wp.class);
             currentPage = reviceWp.getPage();

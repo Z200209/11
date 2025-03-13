@@ -21,11 +21,17 @@ public class UserController {
 
     @RequestMapping("/user/app/login")
     public String login(@RequestParam(name = "phone") String phone,@RequestParam(name = "password") String password) {
-        if (userService.login(phone,password)==null){
-            throw new RuntimeException("手机号不存在");
+        password = password.trim();
+        phone = phone.trim();
+        if (phone.isEmpty() || password.isEmpty())
+        {
+            return "手机号或密码不能为空";
+        }
+        if(userService.getUserByPhone(phone)==null){
+            return "手机号不存在";
         }
         if (userService.login(phone,password)==null){
-            throw new RuntimeException("手机号或密码错误");
+            return "密码错误";
         }
         Sign sign = new Sign();
         sign.setId(userService.login(phone,password).getId());
@@ -41,15 +47,15 @@ public class UserController {
                            @RequestParam(name = "name") String name,
                            @RequestParam(name = "avatar") String avatar) {
         if (phone == null || password == null|| name == null|| avatar == null){
-            throw new RuntimeException("手机号或密码不能为空");
+            return "数据不能为空";
         }
         if(userService.getUserByPhone(phone) != null){
-            throw new RuntimeException("手机号已存在");
+            return "手机号已存在";
         }
         if(userService.register(phone,password,name,avatar)==1){
             return "注册成功";
         }else{
-            throw new RuntimeException("注册失败");
+            return "注册失败";
         }
     }
 
@@ -65,11 +71,11 @@ public class UserController {
         byte[] bytes = Base64.getDecoder().decode(sign);
         String json = new String(bytes, StandardCharsets.UTF_8);
         Sign reviceSign = JSON.parseObject(json, Sign.class);
-        if (reviceSign.getExpirationTime()<(int) (System.currentTimeMillis() / 1000)){
-            throw new RuntimeException("登录已过期");
-        }
         if (userService.getUserById(reviceSign.getId())==null){
-            throw new RuntimeException("用户不存在");
+            return "用户不存在";
+        }
+        if (reviceSign.getExpirationTime()<(int) (System.currentTimeMillis() / 1000)){
+            return "登录过期";
         }
 
         User user = userService.getUserById(reviceSign.getId());
@@ -85,9 +91,9 @@ public class UserController {
         if (avatar != null){
             user.setAvatar(avatar);
         }
-        int result = userService.exit(user.getId(),user.getPhone(),user.getPassword(),user.getName(),user.getAvatar());
+        int result = userService.updateInfo(user.getId(),user.getPhone(),user.getPassword(),user.getName(),user.getAvatar());
         if (result == 0){
-            throw new RuntimeException("更新失败");
+            return "更新失败";
         }
         return "更新成功";
 

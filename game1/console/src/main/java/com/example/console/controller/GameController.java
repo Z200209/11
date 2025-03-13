@@ -7,6 +7,7 @@ import com.example.module.entity.Sign;
 import com.example.module.entity.Type;
 import com.example.module.service.GameService;
 import com.example.module.service.TypeService;
+import com.example.module.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,8 @@ public class GameController {
     private GameService gameService;
     @Autowired
     private TypeService typeService;
+    @Autowired
+    private UserService userService;
 
     @RequestMapping("/create")
     public String createGame(
@@ -162,16 +165,19 @@ public class GameController {
     public ListVO gameList(@RequestParam(name = "page", defaultValue = "1") Integer page,
                            @RequestParam(name = "keyword", required=false) String keyword,
                            @RequestParam(name = "typeId", required=false) BigInteger typeId,
-                           @RequestParam(name = "sign", required=false) String sign) {
+                           @CookieValue(name = "auth_token", required = false) String sign) {
 
         if(sign==null){
             throw new RuntimeException("用户未登录");
         }
-        byte[] bytes = Base64.getDecoder().decode(sign);
+        byte[] bytes = Base64.getUrlDecoder().decode(sign);
         String json = new String(bytes, StandardCharsets.UTF_8);
         Sign reviceSign = JSON.parseObject(json, Sign.class);
         if (reviceSign.getExpirationTime()<(int) (System.currentTimeMillis() / 1000)){
-            throw new RuntimeException("登录已过期");
+            return null;
+        }
+        if (userService.getUserById(reviceSign.getId())==null){
+            return null;
         }
             int pageSize = 10;
             List<Game> gameList = gameService.getAllGame(page, pageSize, keyword, typeId);

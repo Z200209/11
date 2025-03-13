@@ -2,10 +2,15 @@ package com.example.module.service;
 
 import com.example.module.entity.User;
 import com.example.module.mapper.UserMapper;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 @Service
 public class UserService {
@@ -33,13 +38,14 @@ public class UserService {
         if (phone == null || password == null){
             throw new RuntimeException("手机号或密码不能为空");
         }
-        if (userMapper.getUserByPhone(phone)==null){
+        User user = userMapper.getUserByPhone(phone);
+        if (user == null){
             throw new RuntimeException("手机号不存在");
         }
-        if (userMapper.login(phone,password)==null){
+        if (!new BCryptPasswordEncoder().matches(password, user.getPassword())){
             throw new RuntimeException("密码错误");
         }
-        return userMapper.login(phone,password);
+        return user;
     }
 
     public int register(String phone, String password,String name, String avatar)
@@ -48,15 +54,18 @@ public class UserService {
         if (phone == null || password == null || name == null || avatar == null){
             throw new RuntimeException("参数不能为空");
         }
-        User user = new User().setPhone(phone).
-                setPassword(password).
-                setName(name).
-                setAvatar(avatar)
-                .setCreateTime(time)
-                .setUpdateTime(time);
-        if (userMapper.getUserByPhone(user.getPhone())!=null){
+        if (userMapper.getUserByPhone(phone)!=null){
             throw new RuntimeException("手机号已存在");
         }
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        password = passwordEncoder.encode(password);
+        User user = new User().setPhone(phone)
+                .setPassword(password)
+                .setName(name)
+                .setAvatar(avatar)
+                .setCreateTime(time)
+                .setUpdateTime(time);
+
         System.out.println(user);
         int result = insert(user);
         if (result == 0){
@@ -66,12 +75,14 @@ public class UserService {
 
     }
 
-    public int exit(BigInteger id,String phone, String password, String name, String avatar) {
+    public int updateInfo (BigInteger id,String phone, String password, String name, String avatar) {
         int time = (int) (System.currentTimeMillis() / 1000);
 
         if (id == null || phone == null || password == null || name == null || avatar == null){
             throw new RuntimeException("参数不能为空");
         }
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        password = passwordEncoder.encode(password);
         User user = new User().setName(name)
                 .setAvatar(avatar)
                 .setPhone(phone)
@@ -84,5 +95,4 @@ public class UserService {
         }
         return result;
     }
-
 }
