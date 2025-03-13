@@ -41,7 +41,7 @@ public class UserController {
         sign.setId(user.getId());
         int time = (int) (System.currentTimeMillis() / 1000);
         sign.setExpirationTime(time+3600*3);
-        String encodesign = Base64.getEncoder().encodeToString(JSON.toJSONString(sign).getBytes(StandardCharsets.UTF_8));
+        String encodesign = Base64.getUrlEncoder().encodeToString(JSON.toJSONString(sign).getBytes(StandardCharsets.UTF_8));
         return encodesign;
     }
 
@@ -76,7 +76,7 @@ public class UserController {
         if(sign==null){
             throw new RuntimeException("用户未登录");
         }
-        byte[] bytes = Base64.getDecoder().decode(sign);
+        byte[] bytes = Base64.getUrlDecoder().decode(sign);
         String json = new String(bytes, StandardCharsets.UTF_8);
         Sign reviceSign = JSON.parseObject(json, Sign.class);
         if (userService.getUserById(reviceSign.getId())==null){

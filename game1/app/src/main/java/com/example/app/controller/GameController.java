@@ -110,7 +110,7 @@ public class GameController {
                 .setPage(currentPage+1)
                 .setPageSize(currentPageSize);
 
-        String encodeWp= Base64.getEncoder().encodeToString(JSON.toJSONString(outputWp).getBytes(StandardCharsets.UTF_8));
+        String encodeWp= Base64.getUrlEncoder().encodeToString(JSON.toJSONString(outputWp).getBytes(StandardCharsets.UTF_8));
 
         List<GameVO> gameVOList = new ArrayList<>();
         for (Game game : gameList) {
