@@ -8,6 +8,8 @@ import com.example.module.entity.Type;
 import com.example.module.service.GameService;
 import com.example.module.service.TypeService;
 import com.example.module.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -165,60 +167,70 @@ public class GameController {
     public ListVO gameList(@RequestParam(name = "page", defaultValue = "1") Integer page,
                            @RequestParam(name = "keyword", required=false) String keyword,
                            @RequestParam(name = "typeId", required=false) BigInteger typeId,
-                           @CookieValue(name = "auth_token", required = false) String sign) {
-
-        if(sign==null){
-            throw new RuntimeException("用户未登录");
+                           HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        String sign = null;
+        for (Cookie cookie : cookies){
+            if (cookie.getName().equals("auth_token")) {
+                sign = cookie.getValue();
+                break;
+            }
+        }
+        if (sign == null) {
+            return null;
         }
         byte[] bytes = Base64.getUrlDecoder().decode(sign);
         String json = new String(bytes, StandardCharsets.UTF_8);
         Sign reviceSign = JSON.parseObject(json, Sign.class);
-        if (reviceSign.getExpirationTime()<(int) (System.currentTimeMillis() / 1000)){
+        if (reviceSign.getExpirationTime() < (int) (System.currentTimeMillis() / 1000)) {
             return null;
         }
-        if (userService.getUserById(reviceSign.getId())==null){
+        if (userService.getUserById(reviceSign.getId()) == null) {
             return null;
         }
-            int pageSize = 10;
-            List<Game> gameList = gameService.getAllGame(page, pageSize, keyword, typeId);
-            Integer total = gameService.getTotalCount(keyword);
-            Set <BigInteger> typeIdSet = new HashSet<>();
-            for (Game game : gameList) {
-                BigInteger tid = game.getTypeId();
-                if (tid != null) {
-                    typeIdSet.add(tid);
-                }
+        int pageSize = 10;
+        List<Game> gameList = gameService.getAllGame(page, pageSize, keyword, typeId);
+        Integer total = gameService.getTotalCount(keyword);
+        Set<BigInteger> typeIdSet = new HashSet<>();
+        for (Game game : gameList) {
+            BigInteger tid = game.getTypeId();
+            if (tid != null) {
+                typeIdSet.add(tid);
             }
-            List<Type> types = new ArrayList<>();
-            if (!typeIdSet.isEmpty()) {
-                types = typeService.getTypeByIds(typeIdSet);
+        }
+        List<Type> types = new ArrayList<>();
+        if (!typeIdSet.isEmpty()) {
+            types = typeService.getTypeByIds(typeIdSet);
+        }
+        Map<BigInteger, String> typeMap = new HashMap<>();
+        for (Type type : types) {
+            typeMap.put(type.getId(), type.getTypeName());
+        }
+        if (total == null) {
+            log.info("查询数据错误");
+        }
+        List<GameVO> gameVOList = new ArrayList<>();
+        for (Game game : gameList) {
+            String typeName = typeMap.get(game.getTypeId());
+            if (typeName == null) {
+                log.info("未找到游戏类型名称：{}", game.getTypeId());
+                continue;
             }
-            Map<BigInteger , String> typeMap = new HashMap<>();
-            for (Type type : types) {
-                typeMap.put(type.getId(), type.getTypeName());
-            }
-            if (total == null){
-                log.info("查询数据错误");
-            }
-            List <GameVO> gameVOList = new ArrayList<>();
-            for (Game game : gameList) {
-                String typeName = typeMap.get(game.getTypeId());
-                if (typeName == null){
-                    log.info("未找到游戏类型名称：{}", game.getTypeId());
-                    continue;
-                }
-                GameVO gameVO = new GameVO()
-                        .setTypeId(game.getTypeId())
-                        .setGameId(game.getId())
-                        .setGameName(game.getGameName())
-                        .setTypeName(typeName)
-                        .setImage(game.getImages().split("\\$")[0]);
-                gameVOList.add(gameVO);
-            }
-            return new ListVO()
-                    .setGameList(gameVOList)
-                    .setTotal(total)
-                    .setPageSize(pageSize);
+            GameVO gameVO = new GameVO()
+                    .setTypeId(game.getTypeId())
+                    .setGameId(game.getId())
+                    .setGameName(game.getGameName())
+                    .setTypeName(typeName)
+                    .setImage(game.getImages().split("\\$")[0]);
+            gameVOList.add(gameVO);
+        }
+        return new ListVO()
+                .setGameList(gameVOList)
+                .setTotal(total)
+                .setPageSize(pageSize);
     }
 
 }

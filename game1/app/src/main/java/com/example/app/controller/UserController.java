@@ -20,21 +20,25 @@ public class UserController {
     private UserService userService;
 
     @RequestMapping("/user/app/login")
-    public String login(@RequestParam(name = "phone") String phone,@RequestParam(name = "password") String password) {
+    public String login(@RequestParam(name = "phone") String phone,
+                        @RequestParam(name = "password") String password) {
         password = password.trim();
         phone = phone.trim();
         if (phone.isEmpty() || password.isEmpty())
         {
             return "手机号或密码不能为空";
         }
-        if(userService.getUserByPhone(phone)==null){
+        if(userService.getUserByPhone(phone)==null)
+        {
             return "手机号不存在";
         }
-        if (userService.login(phone,password)==null){
+        User user = userService.login(phone, password);
+        if (user == null)
+        {
             return "密码错误";
         }
         Sign sign = new Sign();
-        sign.setId(userService.login(phone,password).getId());
+        sign.setId(user.getId());
         int time = (int) (System.currentTimeMillis() / 1000);
         sign.setExpirationTime(time+3600*3);
         String encodesign = Base64.getEncoder().encodeToString(JSON.toJSONString(sign).getBytes(StandardCharsets.UTF_8));
@@ -46,7 +50,9 @@ public class UserController {
                            @RequestParam(name = "password") String password,
                            @RequestParam(name = "name") String name,
                            @RequestParam(name = "avatar") String avatar) {
-        if (phone == null || password == null|| name == null|| avatar == null){
+        phone = phone.trim();
+        password = password.trim();
+        if ( phone.isEmpty() || password.isEmpty() || name == null|| avatar == null){
             return "数据不能为空";
         }
         if(userService.getUserByPhone(phone) != null){
@@ -65,6 +71,8 @@ public class UserController {
                          @RequestParam(name = "name",required =false) String name,
                          @RequestParam(name = "avatar",required =false) String avatar,
                          @RequestParam(name = "sign") String sign)  {
+        password = password.trim();
+        phone = phone.trim();
         if(sign==null){
             throw new RuntimeException("用户未登录");
         }
@@ -79,10 +87,10 @@ public class UserController {
         }
 
         User user = userService.getUserById(reviceSign.getId());
-        if (phone != null){
+        if (!phone.isEmpty()){
             user.setPhone(phone);
         }
-        if (password != null){
+        if (!password.isEmpty()){
             user.setPassword(password);
         }
         if (name != null){
