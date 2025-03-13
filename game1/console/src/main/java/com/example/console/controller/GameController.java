@@ -8,6 +8,7 @@ import com.example.module.entity.Type;
 import com.example.module.service.GameService;
 import com.example.module.service.TypeService;
 import com.example.module.service.UserService;
+import com.example.module.utils.Response;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -125,7 +126,7 @@ public class GameController {
         return sdf.format(date);
     }
     @RequestMapping("/info")
-    public DetailVO gameInfo(@RequestParam(name = "gameId") BigInteger gameId) {
+    public Response gameInfo(@RequestParam(name = "gameId") BigInteger gameId) {
             Game game = gameService.getById(gameId);
             if (game == null){
                 log.info("未找到游戏信息：{}", gameId);
@@ -137,7 +138,7 @@ public class GameController {
             Type type = typeService.getById(typeId);
              if (type == null){
                  log.info("未找到游戏类型：{}", typeId);
-                 return null;
+                 return new Response(4004);
              }
              String typeName = type.getTypeName();
              if (typeName == null){
@@ -149,7 +150,7 @@ public class GameController {
              }
 
             DetailVO detailVO = new DetailVO();
-            return detailVO
+                     detailVO
                     .setTypeName(typeName)
                     .setTypeImage(typeImage)
                     .setGameId(game.getId())
@@ -161,16 +162,19 @@ public class GameController {
                     .setImages(Arrays.asList(game.getImages().split("\\$")))
                     .setCreateTime(formattedCreateTime)
                     .setUpdateTime(formattedUpdateTime);
+                     return new Response(1001, detailVO);
+
+
         }
 
     @RequestMapping("/list")
-    public ListVO gameList(@RequestParam(name = "page", defaultValue = "1") Integer page,
+    public Response gameList(@RequestParam(name = "page", defaultValue = "1") Integer page,
                            @RequestParam(name = "keyword", required=false) String keyword,
                            @RequestParam(name = "typeId", required=false) BigInteger typeId,
                            HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
-            return null;
+            return new Response(1002);
         }
         String sign = null;
         for (Cookie cookie : cookies){
@@ -180,7 +184,7 @@ public class GameController {
             }
         }
         if (sign == null) {
-            return null;
+            return new Response(1002);
         }
         byte[] bytes = Base64.getUrlDecoder().decode(sign);
         String json = new String(bytes, StandardCharsets.UTF_8);
@@ -227,10 +231,13 @@ public class GameController {
                     .setImage(game.getImages().split("\\$")[0]);
             gameVOList.add(gameVO);
         }
-        return new ListVO()
+
+        ListVO results = new ListVO()
                 .setGameList(gameVOList)
                 .setTotal(total)
                 .setPageSize(pageSize);
+
+        return new Response(1001, results);
     }
 
 }

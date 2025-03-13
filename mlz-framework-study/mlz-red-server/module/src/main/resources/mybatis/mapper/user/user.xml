@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="red.mlz.module.module.user.mapper.UserMapper">
+
+    <insert id="insert"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            parameterType="red.mlz.module.module.user.entity.User">
+        insert into user(
+        <if test="user.countryCode != null and user.countryCode != ''">country_code,</if>
+        <if test="user.phone != null and user.phone != ''">phone,</if>
+        <if test="user.email != null and user.email != ''">email,</if>
+        <if test="user.username != null and user.username != ''">username,</if>
+        <if test="user.password != null and user.password != ''">password,</if>
+        <if test="user.avatar != null and user.avatar != ''">avatar,</if>
+        <if test="user.personalProfile != null and user.personalProfile != ''">personal_profile,</if>
+        <if test="user.coverImage != null and user.coverImage != ''">cover_image,</if>
+        <if test="user.gender != null">gender,</if>
+        <if test="user.birthday != null and user.birthday != ''">birthday,</if>
+        <if test="user.wechatOpenId != null and user.wechatOpenId != ''">wechat_open_id,</if>
+        <if test="user.wechatUnionId != null and user.wechatUnionId != ''">wechat_union_id,</if>
+        <if test="user.wechatNo != null and user.wechatNo != ''">wechat_no,</if>
+        <if test="user.country != null and user.country != ''">country,</if>
+        <if test="user.province != null and user.province != ''">province,</if>
+        <if test="user.city != null and user.city != ''">city,</if>
+        <if test="user.registerTime != null">register_time,</if>
+        <if test="user.registerIp != null and user.registerIp != ''">register_ip,</if>
+        <if test="user.lastLoginTime != null">last_login_time,</if>
+        <if test="user.lastLoginIp != null and user.lastLoginIp != ''">last_login_ip,</if>
+        <if test="user.isBan != null">is_ban,</if>
+        <if test="user.extra != null and user.extra != ''">extra,</if>
+        <if test="user.createTime != null">create_time,</if>
+        <if test="user.updateTime != null">update_time,</if>
+        is_deleted
+        )values(
+        <if test="user.countryCode != null and user.countryCode != ''">#{user.countryCode},</if>
+        <if test="user.phone != null and user.phone != ''">#{user.phone},</if>
+        <if test="user.email != null and user.email != ''">#{user.email},</if>
+        <if test="user.username != null and user.username != ''">#{user.username},</if>
+        <if test="user.password != null and user.password != ''">#{user.password},</if>
+        <if test="user.avatar != null and user.avatar != ''">#{user.avatar},</if>
+        <if test="user.personalProfile != null and user.personalProfile != ''">#{user.personalProfile},</if>
+        <if test="user.coverImage != null and user.coverImage != ''">#{user.coverImage},</if>
+        <if test="user.gender != null">#{user.gender},</if>
+        <if test="user.birthday != null and user.birthday != ''">#{user.birthday},</if>
+        <if test="user.wechatOpenId != null and user.wechatOpenId != ''">#{user.wechatOpenId},</if>
+        <if test="user.wechatUnionId != null and user.wechatUnionId != ''">#{user.wechatUnionId},</if>
+        <if test="user.wechatNo != null and user.wechatNo != ''">#{user.wechatNo},</if>
+        <if test="user.country != null and user.country != ''">#{user.country},</if>
+        <if test="user.province != null and user.province != ''">#{user.province},</if>
+        <if test="user.city != null and user.city != ''">#{user.city},</if>
+        <if test="user.registerTime != null">#{user.registerTime},</if>
+        <if test="user.registerIp != null and user.registerIp != ''">#{user.registerIp},</if>
+        <if test="user.lastLoginTime != null">#{user.lastLoginTime},</if>
+        <if test="user.lastLoginIp != null and user.lastLoginIp != ''">#{user.lastLoginIp},</if>
+        <if test="user.isBan != null">#{user.isBan},</if>
+        <if test="user.extra != null and user.extra != ''">#{user.extra},</if>
+        <if test="user.createTime != null">#{user.createTime},</if>
+        <if test="user.updateTime != null">#{user.updateTime},</if>
+        #{user.isDeleted}
+        )
+    </insert>
+
+    <update id="update"
+            parameterType="red.mlz.module.module.user.entity.User">
+        update user
+        set id = #{user.id}
+                <if test="user.countryCode != null and user.countryCode != ''"> , country_code = #{user.countryCode}</if>
+                <if test="user.phone != null and user.phone != ''"> , phone = #{user.phone}</if>
+                <if test="user.email != null and user.email != ''"> , email = #{user.email}</if>
+                <if test="user.username != null and user.username != ''"> , username = #{user.username}</if>
+                <if test="user.password != null and user.password != ''"> , password = #{user.password}</if>
+                <if test="user.avatar != null and user.avatar != ''"> , avatar = #{user.avatar}</if>
+                <if test="user.personalProfile != null and user.personalProfile != ''"> , personal_profile = #{user.personalProfile}</if>
+                <if test="user.coverImage != null and user.coverImage != ''"> , cover_image = #{user.coverImage}</if>
+                <if test="user.gender != null"> , gender = #{user.gender}</if>
+                <if test="user.birthday != null and user.birthday != ''"> , birthday = #{user.birthday}</if>
+                <if test="user.wechatOpenId != null and user.wechatOpenId != ''"> , wechat_open_id = #{user.wechatOpenId}</if>
+                <if test="user.wechatUnionId != null and user.wechatUnionId != ''"> , wechat_union_id = #{user.wechatUnionId}</if>
+                <if test="user.wechatNo != null and user.wechatNo != ''"> , wechat_no = #{user.wechatNo}</if>
+                <if test="user.country != null and user.country != ''"> , country = #{user.country}</if>
+                <if test="user.province != null and user.province != ''"> , province = #{user.province}</if>
+                <if test="user.city != null and user.city != ''"> , city = #{user.city}</if>
+                <if test="user.registerTime != null"> , register_time = #{user.registerTime}</if>
+                <if test="user.registerIp != null and user.registerIp != ''"> , register_ip = #{user.registerIp}</if>
+                <if test="user.lastLoginTime != null"> , last_login_time = #{user.lastLoginTime}</if>
+                <if test="user.lastLoginIp != null and user.lastLoginIp != ''"> , last_login_ip = #{user.lastLoginIp}</if>
+                <if test="user.isBan != null"> , is_ban = #{user.isBan}</if>
+                <if test="user.extra != null and user.extra != ''"> , extra = #{user.extra}</if>
+                <if test="user.createTime != null"> , create_time = #{user.createTime}</if>
+                <if test="user.updateTime != null"> , update_time = #{user.updateTime}</if>
+                <if test="user.isDeleted != null"> , is_deleted = #{user.isDeleted}</if>
+        where id = #{user.id}
+    </update>
+
+    <select id="getUsersForConsole" resultType="red.mlz.module.module.user.entity.User">
+        select * from user where is_deleted = 0 and is_ban = 0 and (id > 50000 or id in (10001))
+        <if test="username != null and username != ''"> and `username` like concat('%',#{username},'%')</if>
+        <if test="phone != null and phone != ''"> and `phone` like concat('%',#{phone},'%')</if>
+        order by id
+        <if test="orderBy == 'desc'">desc</if>
+        <if test="orderBy == 'asc'">asc</if>
+        limit #{begin}, #{size}
+    </select>
+
+    <select id="getUsersTotalForConsole" resultType="Integer">
+        select count(*) from user where is_deleted = 0 and is_ban = 0 and (id > 50000 or id in (10001))
+        <if test="username != null and username != ''"> and `username` like concat('%',#{username},'%')</if>
+        <if test="phone != null and phone != ''"> and `phone` like concat('%',#{phone},'%')</if>
+    </select>
+
+</mapper>
+

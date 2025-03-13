@@ -1,0 +1,558 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "游戏接口测试",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "测试MLZ项目的游戏相关接口"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "userPhone",
+      "value": "13800138000",
+      "type": "string"
+    },
+    {
+      "key": "userPassword",
+      "value": "password123",
+      "type": "string"
+    },
+    {
+      "key": "userName",
+      "value": "测试用户",
+      "type": "string"
+    },
+    {
+      "key": "userGender",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "userSign",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "gameId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "wp",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "用户",
+      "item": [
+        {
+          "name": "用户注册",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 解析响应JSON",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "// 测试响应状态码是否为200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// 测试业务状态码是否为1001（成功）",
+                  "pm.test(\"Business code is 1001\", function () {",
+                  "    pm.expect(jsonData.code).to.eql(1001);",
+                  "});",
+                  "",
+                  "// 提取sign值并保存到环境变量中",
+                  "if (jsonData.code === 1001 && jsonData.data && jsonData.data.sign) {",
+                  "    pm.collectionVariables.set(\"userSign\", jsonData.data.sign);",
+                  "    console.log(\"已保存sign: \" + jsonData.data.sign);",
+                  "} else {",
+                  "    console.log(\"注册失败或未获取到sign\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "phone",
+                  "value": "{{userPhone}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{userPassword}}",
+                  "type": "text"
+                },
+                {
+                  "key": "name",
+                  "value": "{{userName}}",
+                  "type": "text"
+                },
+                {
+                  "key": "gender",
+                  "value": "{{userGender}}",
+                  "type": "text"
+                },
+                {
+                  "key": "avatar",
+                  "value": "https://example.com/avatar.png",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/register/app",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "register", "app"]
+            },
+            "description": "用户注册接口，注册新用户并获取后续接口调用所需的sign"
+          },
+          "response": []
+        },
+        {
+          "name": "用户登录",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 解析响应JSON",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "// 测试响应状态码是否为200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// 测试业务状态码是否为1001（成功）",
+                  "pm.test(\"Business code is 1001\", function () {",
+                  "    pm.expect(jsonData.code).to.eql(1001);",
+                  "});",
+                  "",
+                  "// 提取sign值并保存到环境变量中",
+                  "if (jsonData.code === 1001 && jsonData.data && jsonData.data.sign) {",
+                  "    pm.collectionVariables.set(\"userSign\", jsonData.data.sign);",
+                  "    console.log(\"已保存sign: \" + jsonData.data.sign);",
+                  "} else {",
+                  "    console.log(\"登录失败或未获取到sign\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "phone",
+                  "value": "{{userPhone}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{userPassword}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/login/app",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "login", "app"]
+            },
+            "description": "用户登录接口，获取后续接口调用所需的sign"
+          },
+          "response": []
+        }
+      ],
+      "description": "用户相关接口"
+    },
+    {
+      "name": "游戏",
+      "item": [
+        {
+          "name": "获取游戏列表",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 解析响应JSON",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "// 测试响应状态码是否为200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// 测试业务状态码是否为1001（成功）",
+                  "pm.test(\"Business code is 1001\", function () {",
+                  "    pm.expect(jsonData.code).to.eql(1001);",
+                  "});",
+                  "",
+                  "// 测试返回的数据中是否包含游戏列表和wp参数",
+                  "pm.test(\"Response has required fields\", function () {",
+                  "    pm.expect(jsonData.data).to.be.an('object');",
+                  "    pm.expect(jsonData.data.gameList).to.be.an('array');",
+                  "    pm.expect(jsonData.data.wp).to.be.a('string');",
+                  "});",
+                  "",
+                  "// 提取第一个游戏的ID和wp参数，保存到环境变量中，供后续测试使用",
+                  "if (jsonData.code === 1001 && jsonData.data) {",
+                  "    // 保存wp参数",
+                  "    if (jsonData.data.wp) {",
+                  "        pm.collectionVariables.set(\"wp\", jsonData.data.wp);",
+                  "        console.log(\"已保存wp参数: \" + jsonData.data.wp);",
+                  "    }",
+                  "    ",
+                  "    // 保存游戏ID（如果有）",
+                  "    if (jsonData.data.gameList && jsonData.data.gameList.length > 0) {",
+                  "        pm.collectionVariables.set(\"gameId\", jsonData.data.gameList[0].gameId);",
+                  "        console.log(\"已保存游戏ID: \" + jsonData.data.gameList[0].gameId);",
+                  "    }",
+                  "} else {",
+                  "    console.log(\"获取游戏列表失败或列表为空\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication",
+                "value": "{{userSign}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game/list",
+              "host": ["{{baseUrl}}"],
+              "path": ["game", "list"]
+            },
+            "description": "获取游戏列表"
+          },
+          "response": []
+        },
+        {
+          "name": "获取游戏详情",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 解析响应JSON",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "// 测试响应状态码是否为200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// 检查业务状态码",
+                  "if (jsonData.code === 1001) {",
+                  "    // 找到游戏，验证返回字段",
+                  "    pm.test(\"Business code is 1001 and data is valid\", function () {",
+                  "        pm.expect(jsonData.code).to.eql(1001);",
+                  "        pm.expect(jsonData.data).to.be.an('object');",
+                  "        pm.expect(jsonData.data.gameId).to.exist;",
+                  "        pm.expect(jsonData.data.gameName).to.be.a('string');",
+                  "    });",
+                  "} else if (jsonData.code === 4004) {",
+                  "    // 未找到游戏",
+                  "    pm.test(\"Game not found with code 4004\", function () {",
+                  "        pm.expect(jsonData.code).to.eql(4004);",
+                  "    });",
+                  "    console.log(\"未找到ID为\" + pm.collectionVariables.get(\"gameId\") + \"的游戏\");",
+                  "} else {",
+                  "    // 其他错误",
+                  "    pm.test(\"Unexpected business code\", function () {",
+                  "        pm.expect(false).to.be.true;",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication",
+                "value": "{{userSign}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game/info?gameId={{gameId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["game", "info"],
+              "query": [
+                {
+                  "key": "gameId",
+                  "value": "{{gameId}}"
+                }
+              ]
+            },
+            "description": "获取游戏详情"
+          },
+          "response": []
+        },
+        {
+          "name": "带关键词的游戏列表",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 解析响应JSON",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "// 测试响应状态码是否为200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// 测试业务状态码是否为1001（成功）",
+                  "pm.test(\"Business code is 1001\", function () {",
+                  "    pm.expect(jsonData.code).to.eql(1001);",
+                  "});",
+                  "",
+                  "// 测试返回的数据中是否包含游戏列表和wp参数",
+                  "pm.test(\"Response has required fields\", function () {",
+                  "    pm.expect(jsonData.data).to.be.an('object');",
+                  "    pm.expect(jsonData.data.gameList).to.be.an('array');",
+                  "    pm.expect(jsonData.data.wp).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication",
+                "value": "{{userSign}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game/list?keyword=游戏",
+              "host": ["{{baseUrl}}"],
+              "path": ["game", "list"],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "游戏"
+                }
+              ]
+            },
+            "description": "获取带关键词搜索的游戏列表"
+          },
+          "response": []
+        },
+        {
+          "name": "带类型ID的游戏列表",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 解析响应JSON",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "// 测试响应状态码是否为200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// 测试业务状态码是否为1001（成功）",
+                  "pm.test(\"Business code is 1001\", function () {",
+                  "    pm.expect(jsonData.code).to.eql(1001);",
+                  "});",
+                  "",
+                  "// 测试返回的数据中是否包含游戏列表和wp参数",
+                  "pm.test(\"Response has required fields\", function () {",
+                  "    pm.expect(jsonData.data).to.be.an('object');",
+                  "    pm.expect(jsonData.data.gameList).to.be.an('array');",
+                  "    pm.expect(jsonData.data.wp).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication",
+                "value": "{{userSign}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game/list?typeId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["game", "list"],
+              "query": [
+                {
+                  "key": "typeId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "获取带类型ID的游戏列表"
+          },
+          "response": []
+        },
+        {
+          "name": "带分页参数的游戏列表",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 解析响应JSON",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "// 测试响应状态码是否为200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// 测试业务状态码是否为1001（成功）或4004（无更多数据）",
+                  "pm.test(\"Business code is valid\", function () {",
+                  "    pm.expect([1001, 4004]).to.include(jsonData.code);",
+                  "});",
+                  "",
+                  "// 如果是成功状态码，检查返回的数据格式",
+                  "if (jsonData.code === 1001) {",
+                  "    pm.test(\"Response has required fields\", function () {",
+                  "        pm.expect(jsonData.data).to.be.an('object');",
+                  "        pm.expect(jsonData.data.gameList).to.be.an('array');",
+                  "        pm.expect(jsonData.data.wp).to.be.a('string');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication",
+                "value": "{{userSign}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game/list?wp={{wp}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["game", "list"],
+              "query": [
+                {
+                  "key": "wp",
+                  "value": "{{wp}}"
+                }
+              ]
+            },
+            "description": "使用wp参数获取下一页游戏列表"
+          },
+          "response": []
+        },
+        {
+          "name": "带类型ID和关键词的游戏列表",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 解析响应JSON",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "// 测试响应状态码是否为200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// 测试业务状态码是否为1001（成功）",
+                  "pm.test(\"Business code is 1001\", function () {",
+                  "    pm.expect(jsonData.code).to.eql(1001);",
+                  "});",
+                  "",
+                  "// 测试返回的数据中是否包含游戏列表和wp参数",
+                  "pm.test(\"Response has required fields\", function () {",
+                  "    pm.expect(jsonData.data).to.be.an('object');",
+                  "    pm.expect(jsonData.data.gameList).to.be.an('array');",
+                  "    pm.expect(jsonData.data.wp).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authentication",
+                "value": "{{userSign}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/game/list?typeId=1&keyword=游戏",
+              "host": ["{{baseUrl}}"],
+              "path": ["game", "list"],
+              "query": [
+                {
+                  "key": "typeId",
+                  "value": "1"
+                },
+                {
+                  "key": "keyword",
+                  "value": "游戏"
+                }
+              ]
+            },
+            "description": "获取同时带类型ID和关键词的游戏列表"
+          },
+          "response": []
+        }
+      ],
+      "description": "游戏相关接口"
+    }
+  ]
+} 

@@ -1,0 +1,403 @@
+openapi: 3.0.0
+info:
+  title: MLZ游戏平台API
+  description: |
+    MLZ游戏平台的API文档，包含用户认证和游戏相关接口。
+    
+    ## 认证说明
+    大部分接口需要用户登录后获取的签名令牌(sign)进行认证。认证方式有两种：
+    1. 在URL参数中添加 `?sign=[sign值]`（推荐方式）
+    2. 在请求头中添加 `Authorization: [sign值]`
+  version: 1.0.0
+  contact:
+    name: MLZ开发团队
+servers:
+  - url: http://localhost:8080
+    description: 本地开发环境
+  - url: https://api.mlz.example.com
+    description: 生产环境
+
+components:
+  securitySchemes:
+    signAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 用户登录后获取的签名令牌
+    signParam:
+      type: apiKey
+      in: query
+      name: sign
+      description: 用户登录后获取的签名令牌（URL参数方式，推荐）
+
+  schemas:
+    Response:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: 业务状态码，1001表示成功
+        msg:
+          type: string
+          description: 状态描述
+        data:
+          type: object
+          description: 响应数据，具体格式根据接口而定
+        
+    UserInfo:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: bigint
+          description: 用户ID
+        name:
+          type: string
+          description: 用户名称
+        phone:
+          type: string
+          description: 手机号
+        avatar:
+          type: string
+          description: 头像URL
+        gender:
+          type: integer
+          enum: [1, 2]
+          description: 性别，1-男，2-女
+          
+    LoginResponse:
+      type: object
+      properties:
+        sign:
+          type: string
+          description: 用户签名令牌，用于后续请求认证
+        userInfo:
+          $ref: '#/components/schemas/UserInfo'
+          
+    GameInfo:
+      type: object
+      properties:
+        gameId:
+          type: string
+          format: bigint
+          description: 游戏ID
+        gameName:
+          type: string
+          description: 游戏名称
+        price:
+          type: number
+          format: float
+          description: 游戏价格
+        gameIntroduction:
+          type: string
+          description: 游戏介绍
+        gameDate:
+          type: string
+          description: 发布日期
+        gamePublisher:
+          type: string
+          description: 发行商
+        typeName:
+          type: string
+          description: 游戏类型名称
+        typeImage:
+          type: string
+          description: 游戏类型图标
+        images:
+          type: array
+          items:
+            type: string
+          description: 游戏图片列表
+          
+    ImageVo:
+      type: object
+      properties:
+        src:
+          type: string
+          description: 图片URL
+        ar:
+          type: number
+          format: float
+          description: 图片宽高比
+          
+    GameListVo:
+      type: object
+      properties:
+        gameId:
+          type: string
+          format: bigint
+          description: 游戏ID
+        gameName:
+          type: string
+          description: 游戏名称
+        typeName:
+          type: string
+          description: 游戏类型名称
+        image:
+          $ref: '#/components/schemas/ImageVo'
+          
+    GameListResponse:
+      type: object
+      properties:
+        gameList:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameListVo'
+          description: 游戏列表
+        wp:
+          type: string
+          description: 分页标记，用于获取下一页数据
+          
+    GameWpVo:
+      type: object
+      properties:
+        keyword:
+          type: string
+          description: 搜索关键词
+        typeId:
+          type: string
+          format: bigint
+          description: 游戏类型ID
+        page:
+          type: integer
+          description: 页码
+        pageSize:
+          type: integer
+          description: 每页数量
+
+paths:
+  /user/login/app:
+    post:
+      summary: 用户登录
+      description: 用户通过手机号和密码登录，获取签名令牌
+      tags:
+        - 用户认证
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - phone
+                - password
+              properties:
+                phone:
+                  type: string
+                  description: 用户手机号
+                password:
+                  type: string
+                  description: 用户密码
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    enum: [1001]
+                    description: 业务状态码，1001表示成功
+                  msg:
+                    type: string
+                    description: 状态描述
+                  data:
+                    $ref: '#/components/schemas/LoginResponse'
+                    
+  /user/register/app:
+    post:
+      summary: 用户注册
+      description: 用户通过手机号、密码和其他必要信息注册新账号
+      tags:
+        - 用户认证
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - phone
+                - password
+                - name
+                - gender
+              properties:
+                phone:
+                  type: string
+                  description: 用户手机号
+                password:
+                  type: string
+                  description: 用户密码
+                name:
+                  type: string
+                  description: 用户名称
+                gender:
+                  type: integer
+                  enum: [1, 2]
+                  description: 性别，1-男，2-女
+                avatar:
+                  type: string
+                  description: 头像URL（可选）
+                country:
+                  type: string
+                  description: 国家（可选）
+                province:
+                  type: string
+                  description: 省份（可选）
+                city:
+                  type: string
+                  description: 城市（可选）
+      responses:
+        '200':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    enum: [1001]
+                    description: 业务状态码，1001表示成功
+                  msg:
+                    type: string
+                    description: 状态描述
+                  data:
+                    $ref: '#/components/schemas/LoginResponse'
+                    
+  /game/list:
+    get:
+      summary: 获取游戏列表
+      description: |
+        获取游戏列表，支持关键词搜索、类型筛选和分页。
+        分页使用wp参数，第一次请求不传，后续请求使用上一次返回的wp值。
+        
+        ### 示例
+        ```
+        # 使用URL参数认证（推荐）
+        GET /game/list?sign=eyJleHBpcmF0aW9uIjoxNzQzOTI1MjAwLCJzYWx0IjoiXzIwMTlfZHJlYW0iLCJ1c2VySWQiOjV9
+        
+        # 带筛选条件
+        GET /game/list?keyword=冒险&typeId=1&sign=eyJleHBpcmF0aW9uIjoxNzQzOTI1MjAwLCJzYWx0IjoiXzIwMTlfZHJlYW0iLCJ1c2VySWQiOjV9
+        ```
+      tags:
+        - 游戏接口
+      security:
+        - signAuth: []
+        - signParam: []
+      parameters:
+        - name: sign
+          in: query
+          description: 用户登录后获取的签名令牌（必需）
+          required: true
+          schema:
+            type: string
+        - name: keyword
+          in: query
+          description: 搜索关键词（可选）
+          required: false
+          schema:
+            type: string
+        - name: typeId
+          in: query
+          description: 游戏类型ID（可选）
+          required: false
+          schema:
+            type: string
+            format: bigint
+        - name: wp
+          in: query
+          description: 分页参数，用于获取下一页（可选）
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取游戏列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    enum: [1001, 1002, 4004]
+                    description: |
+                      业务状态码：
+                      - 1001: 成功
+                      - 1002: 用户未登录
+                      - 4004: 链接超时或资源不存在
+                  msg:
+                    type: string
+                    description: 状态描述
+                  data:
+                    $ref: '#/components/schemas/GameListResponse'
+                    
+  /game/info:
+    get:
+      summary: 获取游戏详情
+      description: |
+        通过游戏ID获取游戏的详细信息
+        
+        ### 示例
+        ```
+        # 使用URL参数认证（推荐）
+        GET /game/info?gameId=1&sign=eyJleHBpcmF0aW9uIjoxNzQzOTI1MjAwLCJzYWx0IjoiXzIwMTlfZHJlYW0iLCJ1c2VySWQiOjV9
+        ```
+      tags:
+        - 游戏接口
+      security:
+        - signAuth: []
+        - signParam: []
+      parameters:
+        - name: sign
+          in: query
+          description: 用户登录后获取的签名令牌（必需）
+          required: true
+          schema:
+            type: string
+        - name: gameId
+          in: query
+          description: 游戏ID
+          required: true
+          schema:
+            type: string
+            format: bigint
+      responses:
+        '200':
+          description: 成功获取游戏详情
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    enum: [1001, 1002, 4004]
+                    description: |
+                      业务状态码：
+                      - 1001: 成功
+                      - 1002: 用户未登录
+                      - 4004: 链接超时或资源不存在
+                  msg:
+                    type: string
+                    description: 状态描述
+                  data:
+                    $ref: '#/components/schemas/GameInfo'
+
+# 业务状态码定义
+x-status-codes:
+  1001:
+    description: 成功
+  1002:
+    description: 用户未登录
+  1010:
+    description: 账号密码不匹配或账号不存在
+  2014:
+    description: 账号尚未注册
+  4003:
+    description: 没有权限
+  4004:
+    description: 链接超时 

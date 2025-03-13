@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="red.mlz.module.module.article.mapper.ArticleMapper">
+
+    <insert id="insert"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            parameterType="red.mlz.module.module.article.entity.Article">
+        insert into article(
+        <if test="article.relateUserId != null">relate_user_id,</if>
+        <if test="article.title != null and article.title != ''">title,</if>
+        <if test="article.coverImage != null and article.coverImage != ''">cover_image,</if>
+        <if test="article.content != null and article.content != ''">content,</if>
+        <if test="article.tags != null and article.tags != ''">tags,</if>
+        <if test="article.weight != null">weight,</if>
+        <if test="article.createTime != null">create_time,</if>
+        <if test="article.updateTime != null">update_time,</if>
+        is_deleted
+        )values(
+        <if test="article.relateUserId != null">#{article.relateUserId},</if>
+        <if test="article.title != null and article.title != ''">#{article.title},</if>
+        <if test="article.coverImage != null and article.coverImage != ''">#{article.coverImage},</if>
+        <if test="article.content != null and article.content != ''">#{article.content},</if>
+        <if test="article.tags != null and article.tags != ''">#{article.tags},</if>
+        <if test="article.weight != null">#{article.weight},</if>
+        <if test="article.createTime != null">#{article.createTime},</if>
+        <if test="article.updateTime != null">#{article.updateTime},</if>
+        #{article.isDeleted}
+        )
+    </insert>
+
+    <update id="update"
+            parameterType="red.mlz.module.module.article.entity.Article">
+        update article
+        set id = #{article.id}
+                <if test="article.relateUserId != null"> , relate_user_id = #{article.relateUserId}</if>
+                <if test="article.title != null and article.title != ''"> , title = #{article.title}</if>
+                <if test="article.coverImage != null and article.coverImage != ''"> , cover_image = #{article.coverImage}</if>
+                <if test="article.content != null and article.content != ''"> , content = #{article.content}</if>
+                <if test="article.tags != ''"> , tags = #{article.tags}</if>
+                <if test="article.weight != null"> , weight = #{article.weight}</if>
+                <if test="article.createTime != null"> , create_time = #{article.createTime}</if>
+                <if test="article.updateTime != null"> , update_time = #{article.updateTime}</if>
+                <if test="article.isDeleted != null"> , is_deleted = #{article.isDeleted}</if>
+        where id = #{article.id}
+    </update>
+
+    <select id="getArticlesForConsole" resultType="red.mlz.module.module.article.entity.Article">
+        select * from article where is_deleted = 0
+        <if test="title != null and title != ''">and title like concat('%',#{title},'%')</if>
+        order by id
+        <if test="orderBy == 'desc'">desc</if>
+        <if test="orderBy == 'asc'">asc</if>
+        limit #{begin}, #{size}
+    </select>
+
+    <select id="getArticlesTotalForConsole" resultType="Integer">
+        select count(*) from article where is_deleted = 0
+        <if test="title != null and title != ''">and title like concat('%',#{title},'%')</if>
+    </select>
+
+
+    <select id="getArticleList" resultType="red.mlz.module.module.article.entity.Article">
+        select * from article where is_deleted = 0
+        <if test="key != null and key != ''">and (title like concat('%',#{key},'%')  or relate_user_id in (${userIds}))</if>
+        order by weight desc limit #{begin}, #{size}
+    </select>
+
+</mapper>
+

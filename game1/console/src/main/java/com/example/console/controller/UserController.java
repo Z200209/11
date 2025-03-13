@@ -42,7 +42,7 @@ public String login(@RequestParam(name = "phone") String phone,
     sign.setId(userService.login(phone, password).getId());
     int time = (int) (System.currentTimeMillis() / 1000 + 3600 * 3);
     sign.setExpirationTime(time);
-    String token = Base64.getEncoder().encodeToString(JSON.toJSONString(sign).getBytes());
+    String token = Base64.getUrlEncoder().encodeToString(JSON.toJSONString(sign).getBytes());
     Cookie cookie = new Cookie("auth_token", token);
     cookie.setMaxAge( 3 * 60 * 60);
     cookie.setPath("/");
