@@ -1,6 +1,9 @@
 package com.example.module.utils;
 
-public class Response <T> {
+import lombok.Getter;
+
+@Getter
+public class Response<T> {
     private final ResponseStatus status = new ResponseStatus();
     private final T result;
 
@@ -8,7 +11,6 @@ public class Response <T> {
         this.status.setCode(status);
         this.status.setMsg(ResponseCode.getMsg(status));
         this.result = null;
-
     }
 
     public Response(int status, T result) {
@@ -16,4 +18,10 @@ public class Response <T> {
         this.status.setMsg(ResponseCode.getMsg(status));
         this.result = result;
     }
-}
+    
+    public Response(int status, String customMsg) {
+        this.status.setCode(status);
+        this.status.setMsg(customMsg);
+        this.result = null;
+    }
+} 

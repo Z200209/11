@@ -9,10 +9,10 @@ import java.math.BigInteger;
 
 @Mapper
 public interface UserMapper {
-    @Select("select * from user where id = #{id}")
+    @Select("select * from user1 where id = #{id}")
     User getUserById(@Param("id") BigInteger id);
 
-    @Select("select * from user where phone = #{phone}")
+    @Select("select * from user1 where phone = #{phone}")
     User getUserByPhone(@Param("phone") String phone);
 
     int update(@Param("user") User user);
@@ -21,7 +21,7 @@ public interface UserMapper {
 
     int delete(BigInteger id);
 
-    @Select("select * from user where phone = #{phone} and password = #{password}")
+    @Select("select * from user1 where phone = #{phone} and password = #{password}")
     User login(@Param("phone") String phone,@Param("password") String password);
 
 

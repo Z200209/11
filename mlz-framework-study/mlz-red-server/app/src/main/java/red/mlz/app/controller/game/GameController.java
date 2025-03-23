@@ -37,6 +37,7 @@ import red.mlz.module.utils.BaseUtils;
 import red.mlz.module.utils.Response;
 
 @RestController
+@RequestMapping("/game")
 public class GameController {
     
     private static final Logger logger = LoggerFactory.getLogger(GameController.class);
@@ -47,7 +48,7 @@ public class GameController {
     @Autowired
     private TypeService typeService;
 
-    @RequestMapping("/game/info")
+    @RequestMapping("/info")
     public Response gameInfo(@VerifiedUser User loginUser,
                             @RequestParam(name = "gameId") BigInteger gameId) {
         if (BaseUtils.isEmpty(loginUser)) {
@@ -90,7 +91,7 @@ public class GameController {
         return new Response(1001, gameInfo); // 返回成功
     }
 
-    @RequestMapping("/game/list")
+    @RequestMapping("/list")
     public Response gameList(@VerifiedUser User loginUser,
                            @RequestParam(name = "keyword", required = false) String keyword,
                            @RequestParam(name = "typeId", required = false) BigInteger typeId,

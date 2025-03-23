@@ -42,7 +42,6 @@ public class UserController {
         if (!BaseUtils.isEmpty(loginUser)) {
             return new Response(4004);
         }
-
         //合法用户直接登录
         boolean result = baseUserService.login(phone, password);
         if (!result) {
@@ -50,8 +49,8 @@ public class UserController {
         }
         User user = baseUserService.getByPhone(phone);
 
-        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
-        baseUserService.refreshUserLoginContext(user.getId(), IpUtils.getIpAddress(request), BaseUtils.currentSeconds());
+        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();  // 获取request对象
+        baseUserService.refreshUserLoginContext(user.getId(), IpUtils.getIpAddress(request), BaseUtils.currentSeconds());       // 更新用户登录信息
 
         UserInfoVo userInfo = new UserInfoVo();
         userInfo.setGender(user.getGender());

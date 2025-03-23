@@ -1,9 +1,12 @@
 package com.example.app.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.example.app.annotations.VerifiedUser;
 import com.example.module.entity.Sign;
 import com.example.module.entity.User;
 import com.example.module.service.UserService;
+import com.example.module.utils.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,99 +14,170 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
-@RequestMapping()
+/**
+ * 用户控制器
+ */
+@Slf4j
 @RestController
+@RequestMapping("/user/app")
 public class UserController {
+    
     @Autowired
     private UserService userService;
 
-    @RequestMapping("/user/app/login")
-    public String login(@RequestParam(name = "phone") String phone,
-                        @RequestParam(name = "password") String password) {
-        password = password.trim();
-        phone = phone.trim();
-        if (phone.isEmpty() || password.isEmpty())
-        {
-            return "手机号或密码不能为空";
-        }
-        if(userService.getUserByPhone(phone)==null)
-        {
-            return "手机号不存在";
-        }
-        User user = userService.login(phone, password);
-        if (user == null)
-        {
-            return "密码错误";
-        }
-        Sign sign = new Sign();
-        sign.setId(user.getId());
-        int time = (int) (System.currentTimeMillis() / 1000);
-        sign.setExpirationTime(time+3600*3);
-        String encodesign = Base64.getUrlEncoder().encodeToString(JSON.toJSONString(sign).getBytes(StandardCharsets.UTF_8));
-        return encodesign;
-    }
-
-    @RequestMapping("/user/app/register")
-    public String register(@RequestParam(name = "phone") String phone,
-                           @RequestParam(name = "password") String password,
-                           @RequestParam(name = "name") String name,
-                           @RequestParam(name = "avatar") String avatar) {
-        phone = phone.trim();
-        password = password.trim();
-        if ( phone.isEmpty() || password.isEmpty() || name == null|| avatar == null){
-            return "数据不能为空";
-        }
-        if(userService.getUserByPhone(phone) != null){
-            return "手机号已存在";
-        }
-        if(userService.register(phone,password,name,avatar)==1){
-            return "注册成功";
-        }else{
-            return "注册失败";
+    /**
+     * 用户登录
+     */
+    @RequestMapping("/login")
+    public Response<String> login(@RequestParam(name = "phone") String phone,
+                         @RequestParam(name = "password") String password) {
+        try {
+            // 参数验证
+            password = password.trim();
+            phone = phone.trim();
+            if (phone.isEmpty() || password.isEmpty()) {
+                return new Response<>(4005, "手机号或密码不能为空");
+            }
+            
+            // 验证手机号是否存在
+            if (userService.getUserByPhone(phone) == null) {
+                return new Response<>(2014, "手机号不存在");
+            }
+            
+            // 登录验证
+            User user = userService.login(phone, password);
+            if (user == null) {
+                return new Response<>(1010, "密码错误");
+            }
+            
+            // 生成签名
+            Sign sign = new Sign();
+            sign.setId(user.getId());
+            int time = (int) (System.currentTimeMillis() / 1000);
+            sign.setExpirationTime(time + 3600 * 3); // 3小时有效期
+            String encodedSign = Base64.getUrlEncoder().encodeToString(
+                    JSON.toJSONString(sign).getBytes(StandardCharsets.UTF_8)
+            );
+            
+            return new Response<>(1001, encodedSign);
+        } catch (Exception e) {
+            log.error("登录失败", e);
+            return new Response<>(4004, "系统异常");
         }
     }
 
-    @RequestMapping("/user/app/update")
-    public String update(@RequestParam(name = "phone",required =false)String phone,
-                         @RequestParam(name = "password",required =false) String password,
-                         @RequestParam(name = "name",required =false) String name,
-                         @RequestParam(name = "avatar",required =false) String avatar,
-                         @RequestParam(name = "sign") String sign)  {
-        password = password.trim();
-        phone = phone.trim();
-        if(sign==null){
-            throw new RuntimeException("用户未登录");
+    /**
+     * 用户注册
+     */
+    @RequestMapping("/register")
+    public Response<String> register(@RequestParam(name = "phone") String phone,
+                            @RequestParam(name = "password") String password,
+                            @RequestParam(name = "name") String name,
+                            @RequestParam(name = "avatar") String avatar) {
+        try {
+            // 参数验证
+            phone = phone.trim();
+            password = password.trim();
+            if (phone.isEmpty() || password.isEmpty() || name == null || avatar == null) {
+                return new Response<>(4005, "注册信息不能为空");
+            }
+            
+            // 验证手机号是否已存在
+            if (userService.getUserByPhone(phone) != null) {
+                return new Response<>(2015, "手机号已存在");
+            }
+            
+            // 注册用户
+            int result = userService.register(phone, password, name, avatar);
+            if (result == 1) {
+                return new Response<>(1001, "注册成功");
+            } else {
+                return new Response<>(4004, "注册失败");
+            }
+        } catch (Exception e) {
+            log.error("注册失败", e);
+            return new Response<>(4004, "系统异常");
         }
-        byte[] bytes = Base64.getUrlDecoder().decode(sign);
-        String json = new String(bytes, StandardCharsets.UTF_8);
-        Sign reviceSign = JSON.parseObject(json, Sign.class);
-        if (userService.getUserById(reviceSign.getId())==null){
-            return "用户不存在";
-        }
-        if (reviceSign.getExpirationTime()<(int) (System.currentTimeMillis() / 1000)){
-            return "登录过期";
-        }
+    }
 
-        User user = userService.getUserById(reviceSign.getId());
-        if (!phone.isEmpty()){
-            user.setPhone(phone);
+    /**
+     * 更新用户信息
+     */
+    @RequestMapping("/update")
+    public Response<String> update(@VerifiedUser User loginUser,
+                          @RequestParam(name = "phone", required = false) String phone,
+                          @RequestParam(name = "password", required = false) String password,
+                          @RequestParam(name = "name", required = false) String name,
+                          @RequestParam(name = "avatar", required = false) String avatar) {
+        try {
+            // 验证用户是否登录
+            if (loginUser == null) {
+                return new Response<>(1002, "用户未登录");
+            }
+            
+            // 参数验证
+            if (phone != null) {
+                phone = phone.trim();
+            }
+            if (password != null) {
+                password = password.trim();
+            }
+            
+            // 更新用户信息
+            if (phone != null && !phone.isEmpty()) {
+                loginUser.setPhone(phone);
+            }
+            if (password != null && !password.isEmpty()) {
+                loginUser.setPassword(password);
+            }
+            if (name != null) {
+                loginUser.setName(name);
+            }
+            if (avatar != null) {
+                loginUser.setAvatar(avatar);
+            }
+            
+            // 提交更新
+            int result = userService.updateInfo(
+                    loginUser.getId(), loginUser.getPhone(), loginUser.getPassword(), loginUser.getName(), loginUser.getAvatar()
+            );
+            
+            if (result == 0) {
+                return new Response<>(4004, "更新失败");
+            }
+            
+            return new Response<>(1001, "更新成功");
+        } catch (Exception e) {
+            log.error("更新用户信息失败", e);
+            return new Response<>(4004, "系统异常");
         }
-        if (!password.isEmpty()){
-            user.setPassword(password);
+    }
+    
+    /**
+     * 获取用户信息
+     */
+    @RequestMapping("/info")
+    public Response<Map<String, Object>> getUserInfo(@VerifiedUser User loginUser) {
+        try {
+            // 验证用户是否登录
+            if (loginUser == null) {
+                return new Response<>(1002, "用户未登录");
+            }
+            
+            // 构建用户信息，不包含敏感数据
+            Map<String, Object> userInfo = new HashMap<>();
+            userInfo.put("id", loginUser.getId());
+            userInfo.put("phone", loginUser.getPhone());
+            userInfo.put("name", loginUser.getName());
+            userInfo.put("avatar", loginUser.getAvatar());
+            
+            return new Response<>(1001, userInfo);
+        } catch (Exception e) {
+            log.error("获取用户信息失败", e);
+            return new Response<>(5000, "系统异常");
         }
-        if (name != null){
-            user.setName(name);
-        }
-        if (avatar != null){
-            user.setAvatar(avatar);
-        }
-        int result = userService.updateInfo(user.getId(),user.getPhone(),user.getPassword(),user.getName(),user.getAvatar());
-        if (result == 0){
-            return "更新失败";
-        }
-        return "更新成功";
-
     }
 }

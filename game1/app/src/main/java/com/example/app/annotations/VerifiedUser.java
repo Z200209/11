@@ -1,4 +1,4 @@
-package red.mlz.app.annotations;
+package com.example.app.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
 public @interface VerifiedUser {
 
 }
+
+
 

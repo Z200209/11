@@ -34,7 +34,7 @@
         WHERE id = #{type.id}
     </update>
 
-    <select id="getParentTypeList" parameterType="red.mlz.module.module.game.entity.Type">
+    <select id="getParentTypeList" parameterType="red.mlz.module.module.game.entity.Type" resultType="red.mlz.module.module.game.entity.Type">
         SELECT * FROM type
         WHERE is_deleted = 0 and parent_id is null
         <if test="keyword != null and keyword != ''">

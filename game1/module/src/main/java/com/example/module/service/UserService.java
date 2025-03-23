@@ -2,15 +2,11 @@ package com.example.module.service;
 
 import com.example.module.entity.User;
 import com.example.module.mapper.UserMapper;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 @Service
 public class UserService {
