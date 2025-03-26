@@ -166,8 +166,7 @@ public class UserController {
             if (loginUser == null) {
                 return new Response<>(1002);
             }
-            
-            // 构建用户信息，不包含敏感数据
+
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("id", loginUser.getId());
             userInfo.put("phone", loginUser.getPhone());
