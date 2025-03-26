@@ -34,7 +34,7 @@ public class UserController {
      * 用户登录
      */
     @RequestMapping("/login")
-    public Response<String> login(@RequestParam(name = "phone") String phone,
+    public Response login(@RequestParam(name = "phone") String phone,
                                  @RequestParam(name = "password") String password,
                                  HttpServletResponse response) {
         try {
@@ -42,18 +42,18 @@ public class UserController {
             password = password.trim();
             phone = phone.trim();
             if (phone.isEmpty() || password.isEmpty()) {
-                return new Response(4005, "手机号或密码不能为空");
+                return new Response<>(4005);
             }
             
             // 验证手机号是否存在
             User user = userService.getUserByPhone(phone);
             if (user == null) {
-                return new Response(2014, "手机号不存在");
+                return new Response<>(2014);
             }
             
             // 验证密码
             if (!new BCryptPasswordEncoder().matches(password, user.getPassword())) {
-                return new Response(1010, "密码错误");
+                return new Response<>(1010);
             }
             
             // 生成签名
@@ -72,10 +72,10 @@ public class UserController {
             cookie.setHttpOnly(true);
             response.addCookie(cookie);
             
-            return new Response<>(1001, "登录成功");
+            return new Response<>(1001);
         } catch (Exception e) {
             log.error("登录失败", e);
-            return new Response(4004, "系统异常");
+            return new Response<>(4004);
         }
     }
     
@@ -83,11 +83,11 @@ public class UserController {
      * 获取当前登录用户信息
      */
     @RequestMapping("/info")
-    public Response<Map<String, Object>> getUserInfo(@VerifiedUser User loginUser) {
+    public Response getUserInfo(@VerifiedUser User loginUser) {
         try {
             // 验证用户是否登录
             if (loginUser == null) {
-                return new Response(1002, "用户未登录");
+                return new Response<>(1002);
             }
             
             // 构建用户信息，不包含敏感数据
@@ -100,7 +100,7 @@ public class UserController {
             return new Response<>(1001, userInfo);
         } catch (Exception e) {
             log.error("获取用户信息失败", e);
-            return new Response(4004, "系统异常");
+            return new Response<>(4004);
         }
     }
     
@@ -108,7 +108,7 @@ public class UserController {
      * 退出登录
      */
     @RequestMapping("/logout")
-    public Response<String> logout(HttpServletResponse response) {
+    public Response logout(HttpServletResponse response) {
         try {
             // 清除Cookie
             Cookie cookie = new Cookie("auth_token", null);
@@ -116,10 +116,10 @@ public class UserController {
             cookie.setPath("/");
             response.addCookie(cookie);
             
-            return new Response(1001, "退出成功");
+            return new Response(1001);
         } catch (Exception e) {
             log.error("退出失败", e);
-            return new Response(4004, "系统异常");
+            return new Response<>(4004);
         }
     }
 }

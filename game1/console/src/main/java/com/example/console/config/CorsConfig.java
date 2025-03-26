@@ -1,39 +1,45 @@
 package com.example.console.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 跨域配置
  */
 @Configuration
-public class CorsConfig implements WebMvcConfigurer {
+public class CorsConfig {
+        private CorsConfiguration buildConfig() {
+            CorsConfiguration corsConfiguration = new CorsConfiguration();
+            corsConfiguration.setAllowCredentials(true);
 
-    /**
-     * 允许的请求源（从配置文件中获取）
-     */
-    @Value("${cors.allowed-origins:https://*.example.com}")
-    private String[] allowedOrigins;
+            //允许访问的客户端域名
+            List<String> allowedOrigins = new ArrayList<>();
 
-    /**
-     * 添加跨域配置
-     */
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                // 允许的请求源（从配置文件中读取）
-                .allowedOriginPatterns(allowedOrigins)
-                // 允许的请求方法
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                // 允许的请求头
-                .allowedHeaders("Authorization", "Content-Type", "X-Requested-With", "Accept")
-                // 是否允许发送Cookie
-                .allowCredentials(true)
-                // 暴露的响应头
-                .exposedHeaders("Authorization")
-                // 预检请求的有效期，单位为秒
-                .maxAge(3600);
-    }
-} 
+            //for web dev
+            allowedOrigins.add("http://localhost:8083");
+            //for web prod
+            allowedOrigins.add("https://www.example.com");
+
+
+            corsConfiguration.setAllowedOrigins(allowedOrigins);
+
+            //允许访问的客户端请求方法列表
+            corsConfiguration.addAllowedHeader("*");
+            corsConfiguration.addAllowedMethod("*");
+            return corsConfiguration;
+
+        }
+        @Bean
+        public CorsFilter corsFilter() {
+            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            source.registerCorsConfiguration("/**", buildConfig());
+            return new CorsFilter(source);
+        }
+
+}

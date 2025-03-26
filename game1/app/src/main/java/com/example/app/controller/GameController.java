@@ -41,12 +41,12 @@ public class GameController {
      * 获取游戏详情
      */
     @RequestMapping("/info")
-    public Response<GameInfoVO> gameInfo(@VerifiedUser User loginUser,
+    public Response gameInfo(@VerifiedUser User loginUser,
                                         @RequestParam(name = "gameId") BigInteger gameId) {
         // 验证用户是否登录
         if (loginUser == null) {
             log.warn("用户未登录");
-            return new Response<>(1002, "用户未登录");
+            return new Response<>(1002);
         }
         
         log.info("用户 {} 请求游戏详情，gameId: {}", loginUser.getId(), gameId);
@@ -54,7 +54,7 @@ public class GameController {
         Game game = gameService.getById(gameId);
         if (game == null) {
             log.info("未找到游戏信息：{}", gameId);
-            return new Response<>(4004, "未找到游戏信息");
+            return new Response<>(4004);
         }
         
         Type type = null;
@@ -117,14 +117,14 @@ public class GameController {
      * 获取游戏列表
      */
     @RequestMapping("/list")
-    public Response<GameListVO> gameList(@VerifiedUser User loginUser,
+    public Response gameList(@VerifiedUser User loginUser,
                                         @RequestParam(name = "keyword", required=false) String keyword,
                                         @RequestParam(name = "typeId", required=false) BigInteger typeId,
                                         @RequestParam(name = "wp", required=false) String wp) {
         // 验证用户是否登录
         if (loginUser == null) {
             log.warn("用户未登录");
-            return new Response<>(1002, "用户未登录");
+            return new Response<>(1002);
         }
         
         log.info("用户 {} 请求游戏列表，keyword: {}, typeId: {}", loginUser.getId(), keyword, typeId);
@@ -140,7 +140,7 @@ public class GameController {
                 currentPage = receiveWp.getPage();
                 
                 if (currentPage == 1) {
-                    return new Response<>(4004, "无效的分页参数");
+                    return new Response<>(4005);
                 }
                 
                 currentPageSize = receiveWp.getPageSize();
@@ -228,7 +228,7 @@ public class GameController {
             return new Response<>(1001, result); // 返回成功
         } catch (Exception e) {
             log.error("获取游戏列表失败: {}", e.getMessage(), e);
-            return new Response<>(4004, "处理请求失败");
+            return new Response<>(4004);
         }
     }
 }

@@ -9,6 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -26,6 +27,9 @@ public class UserAuthorityResolver implements HandlerMethodArgumentResolver {
 
     @Autowired
     private UserService userService;
+
+    public UserAuthorityResolver(ApplicationArguments appArguments) {
+    }
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {

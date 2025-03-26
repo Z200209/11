@@ -54,7 +54,11 @@ public class TypeService {
         return mapper.delete(id, time);
     }
 
-    public List<Type> getAll( String keyword) {
+    public List<Type> getAllType(String keyword) {
+        return mapper.getAllType(keyword);
+    }
+
+    public List<Type> getParentTypeList( String keyword) {
         return mapper.getParentTypeList(keyword);
     }
 

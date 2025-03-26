@@ -32,25 +32,25 @@ public class UserController {
      * 用户登录
      */
     @RequestMapping("/login")
-    public Response<String> login(@RequestParam(name = "phone") String phone,
+    public Response login(@RequestParam(name = "phone") String phone,
                          @RequestParam(name = "password") String password) {
         try {
             // 参数验证
             password = password.trim();
             phone = phone.trim();
             if (phone.isEmpty() || password.isEmpty()) {
-                return new Response<>(4005, "手机号或密码不能为空");
+                return new Response<>(4005);
             }
             
             // 验证手机号是否存在
             if (userService.getUserByPhone(phone) == null) {
-                return new Response<>(2014, "手机号不存在");
+                return new Response<>(2014);
             }
             
             // 登录验证
             User user = userService.login(phone, password);
             if (user == null) {
-                return new Response<>(1010, "密码错误");
+                return new Response<>(1010);
             }
             
             // 生成签名
@@ -65,7 +65,7 @@ public class UserController {
             return new Response<>(1001, encodedSign);
         } catch (Exception e) {
             log.error("登录失败", e);
-            return new Response<>(4004, "系统异常");
+            return new Response<>(4004);
         }
     }
 
@@ -73,7 +73,7 @@ public class UserController {
      * 用户注册
      */
     @RequestMapping("/register")
-    public Response<String> register(@RequestParam(name = "phone") String phone,
+    public Response register(@RequestParam(name = "phone") String phone,
                             @RequestParam(name = "password") String password,
                             @RequestParam(name = "name") String name,
                             @RequestParam(name = "avatar") String avatar) {
@@ -82,12 +82,12 @@ public class UserController {
             phone = phone.trim();
             password = password.trim();
             if (phone.isEmpty() || password.isEmpty() || name == null || avatar == null) {
-                return new Response<>(4005, "注册信息不能为空");
+                return new Response<>(4005);
             }
             
             // 验证手机号是否已存在
             if (userService.getUserByPhone(phone) != null) {
-                return new Response<>(2015, "手机号已存在");
+                return new Response<>(2015);
             }
             
             // 注册用户
@@ -95,11 +95,11 @@ public class UserController {
             if (result == 1) {
                 return new Response<>(1001, "注册成功");
             } else {
-                return new Response<>(4004, "注册失败");
+                return new Response<>(4004);
             }
         } catch (Exception e) {
             log.error("注册失败", e);
-            return new Response<>(4004, "系统异常");
+            return new Response<>(4004);
         }
     }
 
@@ -107,7 +107,7 @@ public class UserController {
      * 更新用户信息
      */
     @RequestMapping("/update")
-    public Response<String> update(@VerifiedUser User loginUser,
+    public Response update(@VerifiedUser User loginUser,
                           @RequestParam(name = "phone", required = false) String phone,
                           @RequestParam(name = "password", required = false) String password,
                           @RequestParam(name = "name", required = false) String name,
@@ -115,7 +115,7 @@ public class UserController {
         try {
             // 验证用户是否登录
             if (loginUser == null) {
-                return new Response<>(1002, "用户未登录");
+                return new Response<>(1002);
             }
             
             // 参数验证
@@ -146,13 +146,13 @@ public class UserController {
             );
             
             if (result == 0) {
-                return new Response<>(4004, "更新失败");
+                return new Response<>(4004);
             }
             
-            return new Response<>(1001, "更新成功");
+            return new Response(1001);
         } catch (Exception e) {
             log.error("更新用户信息失败", e);
-            return new Response<>(4004, "系统异常");
+            return new Response<>(4004);
         }
     }
     
@@ -160,11 +160,11 @@ public class UserController {
      * 获取用户信息
      */
     @RequestMapping("/info")
-    public Response<Map<String, Object>> getUserInfo(@VerifiedUser User loginUser) {
+    public Response getUserInfo(@VerifiedUser User loginUser) {
         try {
             // 验证用户是否登录
             if (loginUser == null) {
-                return new Response<>(1002, "用户未登录");
+                return new Response<>(1002);
             }
             
             // 构建用户信息，不包含敏感数据
@@ -177,7 +177,7 @@ public class UserController {
             return new Response<>(1001, userInfo);
         } catch (Exception e) {
             log.error("获取用户信息失败", e);
-            return new Response<>(5000, "系统异常");
+            return new Response<>(5000);
         }
     }
 }

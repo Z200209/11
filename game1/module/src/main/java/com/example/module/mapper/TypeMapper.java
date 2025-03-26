@@ -31,10 +31,12 @@ public interface TypeMapper {
     @Select("select * from type where parent_id =#{id} and is_deleted = 0")
     List<Type> getChildrenTypeList(@Param("id") BigInteger id);
 
+    @Select("select * from type where is_deleted = 0")
+    List<Type> getAllType(@Param("keyword") String keyword);
+
     int getTotalCount(@Param("keyword") String keyword);
 
     List<BigInteger> getTypeIdList(@Param("keyword") String keyword);
-
 
     List<Type> getRootTypes();
 

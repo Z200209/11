@@ -1,7 +1,7 @@
-package red.mlz.console.controller;
+package com.example.app.advice;
 
+import com.example.module.utils.Response;
 
-import red.mlz.module.utils.Response;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -15,3 +15,7 @@ public class GlobalControllerAdvice {   // 全局异常处理
     }
 
 }
+
+
+
+

@@ -36,18 +36,18 @@ public class TypeController {
      * 获取类型列表
      */
     @RequestMapping("/list")
-    public Response<List<TypeVO>> typeList(@VerifiedUser User loginUser,
+    public Response typeList(@VerifiedUser User loginUser,
                                           @RequestParam(name = "keyword", required=false) String keyword) {
         try {
             // 用户验证
             if (loginUser == null) {
-                return new Response<>(1002, "用户未登录");
+                return new Response<>(1002);
             }
             
-            List<Type> typeList = typeService.getAll(keyword);
+            List<Type> typeList = typeService.getParentTypeList(keyword);
             if (typeList.isEmpty()) {
                 log.info("没有找到类型信息");
-                return new Response<>(1001, new ArrayList<>()); // 返回空列表
+                return new Response<>(1001, new ArrayList<>());
             }
             
             List<TypeVO> typeVOList = new ArrayList<>();
@@ -74,7 +74,7 @@ public class TypeController {
             return new Response<>(1001, typeVOList); // 返回成功
         } catch (Exception e) {
             log.error("获取类型列表失败: {}", e.getMessage(), e);
-            return new Response<>(4004, "处理请求失败");
+            return new Response<>(4004);
         }
     }
 
@@ -82,12 +82,12 @@ public class TypeController {
      * 获取子类型列表和对应游戏列表
      */
     @RequestMapping("/childrenList")
-    public Response<ChildrenListVO> childrenList(@VerifiedUser User loginUser,
+    public Response childrenList(@VerifiedUser User loginUser,
                                                 @RequestParam(name = "typeId") BigInteger typeId) {
         try {
             // 用户验证
             if (loginUser == null) {
-                return new Response<>(1002, "用户未登录");
+                return new Response<>(1002);
             }
             
             // 获取子类型列表
@@ -137,7 +137,7 @@ public class TypeController {
             return new Response<>(1001, result); // 返回成功
         } catch (Exception e) {
             log.error("获取子类型列表失败: {}", e.getMessage(), e);
-            return new Response<>(4004, "处理请求失败");
+            return new Response<>(4004);
         }
     }
 }
