@@ -45,9 +45,7 @@ public class GameController {
     
     @Autowired
     private TypeService typeService;
-    
-    @Autowired
-    private UserService userService;
+
 
     /**
      * 创建游戏

@@ -177,7 +177,7 @@ public class UserController {
             return new Response<>(1001, userInfo);
         } catch (Exception e) {
             log.error("获取用户信息失败", e);
-            return new Response<>(5000);
+            return new Response<>(4004);
         }
     }
 }

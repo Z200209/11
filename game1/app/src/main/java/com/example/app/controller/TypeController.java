@@ -47,7 +47,7 @@ public class TypeController {
             List<Type> typeList = typeService.getParentTypeList(keyword);
             if (typeList.isEmpty()) {
                 log.info("没有找到类型信息");
-                return new Response<>(1001, new ArrayList<>());
+                return new Response<>(4006);
             }
             
             List<TypeVO> typeVOList = new ArrayList<>();

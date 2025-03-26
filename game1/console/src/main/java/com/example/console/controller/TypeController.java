@@ -103,7 +103,7 @@ public class TypeController {
             return new Response(1001, typeDetailVO);
         } catch (Exception e) {
             log.error("获取类型详情失败", e);
-            return new Response(5000);
+            return new Response(4004);
         }
     }
 
