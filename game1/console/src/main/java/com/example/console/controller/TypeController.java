@@ -28,7 +28,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/game/console/type")
+@RequestMapping("/console/game/type")
 public class TypeController {
     @Autowired
     private TypeService typeService;

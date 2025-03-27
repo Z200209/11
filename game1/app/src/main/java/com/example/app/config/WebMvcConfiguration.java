@@ -27,4 +27,5 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     public UserAuthorityResolver newUserAuthResolver() {
         return new UserAuthorityResolver(appArguments);
     }
+
 }

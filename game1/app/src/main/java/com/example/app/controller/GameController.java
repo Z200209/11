@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 @RestController
-@RequestMapping("/game/app")
+@RequestMapping("/app/game")
 public class GameController {
 
     @Autowired

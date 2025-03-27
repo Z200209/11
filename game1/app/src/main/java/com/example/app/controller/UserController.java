@@ -22,7 +22,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/user/app")
+@RequestMapping("/app/user")
 public class UserController {
     
     @Autowired

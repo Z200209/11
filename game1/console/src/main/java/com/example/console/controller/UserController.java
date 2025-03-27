@@ -24,7 +24,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/user/console")
+@RequestMapping("/console/user")
 public class UserController {
     
     @Autowired
@@ -42,18 +42,18 @@ public class UserController {
             password = password.trim();
             phone = phone.trim();
             if (phone.isEmpty() || password.isEmpty()) {
-                return new Response<>(4005);
+                return new Response(4005);
             }
             
             // 验证手机号是否存在
             User user = userService.getUserByPhone(phone);
             if (user == null) {
-                return new Response<>(2014);
+                return new Response(2014);
             }
             
             // 验证密码
             if (!new BCryptPasswordEncoder().matches(password, user.getPassword())) {
-                return new Response<>(1010);
+                return new Response(1010);
             }
             
             // 生成签名
@@ -72,10 +72,10 @@ public class UserController {
             cookie.setHttpOnly(true);
             response.addCookie(cookie);
             
-            return new Response<>(1001);
+            return new Response(1001);
         } catch (Exception e) {
             log.error("登录失败", e);
-            return new Response<>(4004);
+            return new Response(4004);
         }
     }
     
@@ -87,7 +87,7 @@ public class UserController {
         try {
             // 验证用户是否登录
             if (loginUser == null) {
-                return new Response<>(1002);
+                return new Response(1002);
             }
             
             // 构建用户信息，不包含敏感数据
@@ -97,10 +97,10 @@ public class UserController {
             userInfo.put("name", loginUser.getName());
             userInfo.put("avatar", loginUser.getAvatar());
             
-            return new Response<>(1001, userInfo);
+            return new Response(1001, userInfo);
         } catch (Exception e) {
             log.error("获取用户信息失败", e);
-            return new Response<>(4004);
+            return new Response(4004);
         }
     }
     
@@ -119,7 +119,7 @@ public class UserController {
             return new Response(1001);
         } catch (Exception e) {
             log.error("退出失败", e);
-            return new Response<>(4004);
+            return new Response(4004);
         }
     }
 }

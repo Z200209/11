@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/game/app/type")
+@RequestMapping("/app/game/type")
 public class TypeController {
     
     @Resource

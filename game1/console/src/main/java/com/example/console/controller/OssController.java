@@ -19,7 +19,7 @@ import java.util.UUID;
 
 
 @RestController()
-@RequestMapping("/oss")
+@RequestMapping("/console/oss")
 public class OssController {
 
     @RequestMapping("/upload")
