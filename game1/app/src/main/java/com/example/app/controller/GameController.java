@@ -89,6 +89,7 @@ public class GameController {
                 }
             } catch (Exception e) {
                 log.error("解析游戏介绍JSON失败: {}", e.getMessage());
+                return new Response(4005);
             }
         }
         
