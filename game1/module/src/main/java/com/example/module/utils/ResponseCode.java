@@ -19,6 +19,9 @@ public class ResponseCode {
         statusMap.put(4004,"链接超时");
         statusMap.put(4005,"请求参数错误");
         statusMap.put(4006,"请求资源不存在");
+        statusMap.put(4007,"请求参数为空");
+        statusMap.put(4008,"读取图片尺寸失败");
+
     }
 
     public static String getMsg(Integer code) {

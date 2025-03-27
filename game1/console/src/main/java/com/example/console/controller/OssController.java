@@ -4,6 +4,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.PutObjectResult;
 import com.example.console.domain.OssConfigVO;
+import com.example.module.utils.Response;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,15 +23,15 @@ import java.util.UUID;
 public class OssController {
 
     @RequestMapping("/upload")
-    public String uploadImage(@RequestParam("file") MultipartFile file) {
+    public Response uploadImage(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            return "文件为空，请重新上传";
+            return  new Response(4007);
         }
         if (!file.getContentType().startsWith("image") &&
         !file.getContentType().startsWith("video") &&
         !file.getContentType().startsWith("application")) {
 
-            return "文件格式不正确，请重新上传";
+            return new Response(4005);
         }
 
 
@@ -55,7 +56,7 @@ public class OssController {
                 fileName = "image/" + datePath + "/" + uniqueName + "_" + width + "x" + height + fileExtension;
             } catch (IOException e) {
                 e.printStackTrace();
-                return "读取图片尺寸失败";
+                return new Response(4008);
             }
         }
         if (file.getContentType().startsWith("video")){
@@ -82,10 +83,10 @@ ossConfigVO.setBucketName("zzt3");
 
             // 返回文件的访问地址
             String fileUrl = "https://" + ossConfigVO.getBucketName() + "." + ossConfigVO.getEndpoint() + "/" + fileName;
-            return "文件上传成功，访问地址：" + fileUrl;
+            return new Response(1001, fileUrl);
         } catch (IOException e) {
             e.printStackTrace();
-            return "文件上传失败";
+            return new Response(4004);
         } finally {
             ossClient.shutdown();
         }

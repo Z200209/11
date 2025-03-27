@@ -41,13 +41,13 @@ public class TypeController {
         try {
             // 用户验证
             if (loginUser == null) {
-                return new Response<>(1002);
+                return new Response(1002);
             }
             
             List<Type> typeList = typeService.getParentTypeList(keyword);
             if (typeList.isEmpty()) {
                 log.info("没有找到类型信息");
-                return new Response<>(4006);
+                return new Response(4006);
             }
             
             List<TypeVO> typeVOList = new ArrayList<>();
@@ -71,10 +71,10 @@ public class TypeController {
                 typeVOList.add(typeVO);
             }
             
-            return new Response<>(1001, typeVOList); // 返回成功
+            return new Response(1001, typeVOList); // 返回成功
         } catch (Exception e) {
             log.error("获取类型列表失败: {}", e.getMessage(), e);
-            return new Response<>(4004);
+            return new Response(4004);
         }
     }
 
@@ -87,7 +87,7 @@ public class TypeController {
         try {
             // 用户验证
             if (loginUser == null) {
-                return new Response<>(1002);
+                return new Response(1002);
             }
             
             // 获取子类型列表
@@ -134,10 +134,10 @@ public class TypeController {
                     .setChildrenList(childrenVOList)
                     .setGameList(childreGameVOList);
             
-            return new Response<>(1001, result); // 返回成功
+            return new Response(1001, result); // 返回成功
         } catch (Exception e) {
             log.error("获取子类型列表失败: {}", e.getMessage(), e);
-            return new Response<>(4004);
+            return new Response(4004);
         }
     }
 }

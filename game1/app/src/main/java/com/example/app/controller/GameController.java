@@ -11,7 +11,6 @@ import com.example.module.entity.User;
 import com.example.module.entity.Wp;
 import com.example.module.service.GameService;
 import com.example.module.service.TypeService;
-import com.example.module.utils.BaseUtils;
 import com.example.module.utils.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +45,7 @@ public class GameController {
         // 验证用户是否登录
         if (loginUser == null) {
             log.warn("用户未登录");
-            return new Response<>(1002);
+            return new Response(1002);
         }
         
         log.info("用户 {} 请求游戏详情，gameId: {}", loginUser.getId(), gameId);
@@ -54,10 +53,10 @@ public class GameController {
         Game game = gameService.getById(gameId);
         if (game == null) {
             log.info("未找到游戏信息：{}", gameId);
-            return new Response<>(4004);
+            return new Response(4004);
         }
         
-        Type type = null;
+        Type type;
         String typeName = null;
         String typeImage = null;
         
@@ -110,7 +109,7 @@ public class GameController {
             gameInfo.setImages(Arrays.asList(game.getImages().split("\\$")));
         }
 
-        return new Response<>(1001, gameInfo); // 返回成功
+        return new Response(1001, gameInfo); // 返回成功
     }
 
     /**
@@ -225,10 +224,10 @@ public class GameController {
                     .setGameList(gameVOList)
                     .setWp(encodeWp);
             
-            return new Response<>(1001, result); // 返回成功
+            return new Response(1001, result); // 返回成功
         } catch (Exception e) {
             log.error("获取游戏列表失败: {}", e.getMessage(), e);
-            return new Response<>(4004);
+            return new Response(4004);
         }
     }
 }

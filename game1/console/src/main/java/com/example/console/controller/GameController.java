@@ -1,7 +1,6 @@
 package com.example.console.controller;
 
 import java.math.BigInteger;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,7 +27,6 @@ import com.example.module.entity.Type;
 import com.example.module.entity.User;
 import com.example.module.service.GameService;
 import com.example.module.service.TypeService;
-import com.example.module.service.UserService;
 import com.example.module.utils.Response;
 import lombok.extern.slf4j.Slf4j;
 
@@ -109,7 +107,7 @@ public class GameController {
             return new Response<>(1001, "创建成功，ID: " + gameId);
         } catch (Exception e) {
             log.error("创建游戏失败", e);
-            return new Response(1002);
+            return new Response(4004);
         }
     }
 
@@ -183,7 +181,7 @@ public class GameController {
             return new Response(1001);
         } catch (Exception e) {
             log.error("更新游戏失败", e);
-            return new Response(1002);
+            return new Response(4004);
         }
     }
 
@@ -256,7 +254,7 @@ public class GameController {
             return new Response(1001, result);
         } catch (Exception e) {
             log.error("获取游戏列表失败: {}", e.getMessage(), e);
-            return new Response(1002);
+            return new Response(4004);
         }
     }
 
@@ -280,7 +278,7 @@ public class GameController {
             Game game = gameService.getById(gameId);
             if (game == null) {
                 log.info("未找到游戏信息：{}", gameId);
-                return new Response(1002);
+                return new Response(4006);
             }
             
             String formattedCreateTime = BaseUtils.timeStamp2DateGMT(game.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
@@ -290,7 +288,7 @@ public class GameController {
             Type type = typeService.getById(typeId);
             if (type == null) {
                 log.info("未找到游戏类型：{}", typeId);
-                return new Response(1002);
+                return new Response(4006);
             }
             
             String typeName = type.getTypeName();
@@ -316,7 +314,7 @@ public class GameController {
             return new Response(1001, detailVO);
         } catch (Exception e) {
             log.error("获取游戏详情失败", e);
-            return new Response(1002);
+            return new Response(4004);
         }
     }
 
@@ -347,11 +345,11 @@ public class GameController {
             if (result == 1) {
                 return new Response(1001);
             } else {
-                return new Response(1002);
+                return new Response(4004);
             }
         } catch (Exception e) {
             log.error("删除游戏失败", e);
-            return new Response(1002);
+            return new Response(4004);
         }
     }
     

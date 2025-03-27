@@ -39,18 +39,18 @@ public class UserController {
             password = password.trim();
             phone = phone.trim();
             if (phone.isEmpty() || password.isEmpty()) {
-                return new Response<>(4005);
+                return new Response(4005);
             }
             
             // 验证手机号是否存在
             if (userService.getUserByPhone(phone) == null) {
-                return new Response<>(2014);
+                return new Response(2014);
             }
             
             // 登录验证
             User user = userService.login(phone, password);
             if (user == null) {
-                return new Response<>(1010);
+                return new Response(1010);
             }
             
             // 生成签名
@@ -62,10 +62,10 @@ public class UserController {
                     JSON.toJSONString(sign).getBytes(StandardCharsets.UTF_8)
             );
             
-            return new Response<>(1001, encodedSign);
+            return new Response(1001, encodedSign);
         } catch (Exception e) {
             log.error("登录失败", e);
-            return new Response<>(4004);
+            return new Response(4004);
         }
     }
 
@@ -82,24 +82,24 @@ public class UserController {
             phone = phone.trim();
             password = password.trim();
             if (phone.isEmpty() || password.isEmpty() || name == null || avatar == null) {
-                return new Response<>(4005);
+                return new Response(4005);
             }
             
             // 验证手机号是否已存在
             if (userService.getUserByPhone(phone) != null) {
-                return new Response<>(2015);
+                return new Response(2015);
             }
             
             // 注册用户
             int result = userService.register(phone, password, name, avatar);
             if (result == 1) {
-                return new Response<>(1001, "注册成功");
+                return new Response(1001, "注册成功");
             } else {
-                return new Response<>(4004);
+                return new Response(4004);
             }
         } catch (Exception e) {
             log.error("注册失败", e);
-            return new Response<>(4004);
+            return new Response(4004);
         }
     }
 
@@ -115,7 +115,7 @@ public class UserController {
         try {
             // 验证用户是否登录
             if (loginUser == null) {
-                return new Response<>(1002);
+                return new Response(1002);
             }
             
             // 参数验证
@@ -146,13 +146,13 @@ public class UserController {
             );
             
             if (result == 0) {
-                return new Response<>(4004);
+                return new Response(4004);
             }
             
             return new Response(1001);
         } catch (Exception e) {
             log.error("更新用户信息失败", e);
-            return new Response<>(4004);
+            return new Response(4004);
         }
     }
     
@@ -164,7 +164,7 @@ public class UserController {
         try {
             // 验证用户是否登录
             if (loginUser == null) {
-                return new Response<>(1002);
+                return new Response(1002);
             }
 
             Map<String, Object> userInfo = new HashMap<>();
@@ -173,10 +173,10 @@ public class UserController {
             userInfo.put("name", loginUser.getName());
             userInfo.put("avatar", loginUser.getAvatar());
             
-            return new Response<>(1001, userInfo);
+            return new Response(1001, userInfo);
         } catch (Exception e) {
             log.error("获取用户信息失败", e);
-            return new Response<>(4004);
+            return new Response(4004);
         }
     }
 }

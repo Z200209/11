@@ -87,7 +87,7 @@ public class TypeController {
             Type type = typeService.getById(typeId);
             if (type == null) {
                 log.info("未找到游戏类型：{}", typeId);
-                return new Response(4004);
+                return new Response(4006);
             }
             String formattedCreateTime = BaseUtils.timeStamp2DateGMT(type.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
             String formattedUpdateTime = BaseUtils.timeStamp2DateGMT(type.getUpdateTime(), "yyyy-MM-dd HH:mm:ss");
@@ -169,7 +169,7 @@ public class TypeController {
             Type type = typeService.getById(typeId);
             if (type == null) {
                 log.info("未找到游戏类型：{}", typeId);
-                return new Response(4004);
+                return new Response(4006);
             }
             
             // 更新类型
@@ -222,24 +222,6 @@ public class TypeController {
         }
     }
 
-
-
-    @RequestMapping("/tree")
-    public Response typeTree(@RequestParam(name = "keyword", required = false) String keyword) {
-        List<Type> rootTypes = typeService.getRootTypes();
-        List<TypeTreeVO> typeTreeList = new ArrayList<>();
-
-        // 遍历根节点，递归构建类型树
-        for (Type rootType : rootTypes) {
-            // 递归构建当前节点及其子节点
-            TypeTreeVO typeTreeVO = buildTree(rootType, keyword);
-            if (typeTreeVO != null) {
-                typeTreeList.add(typeTreeVO);
-            }
-        }
-        return new Response(1001, typeTreeList);
-    }
-
     private TypeTreeVO buildTree(Type type, String keyword) {
         TypeTreeVO typeTreeVO = new TypeTreeVO();
         typeTreeVO.setImage(type.getImage());
@@ -260,10 +242,30 @@ public class TypeController {
         // 根据关键字过滤
         if (keyword != null && !keyword.isEmpty()) {
             if (!typeTreeVO.getTypeName().contains(keyword) && childrenList.isEmpty()) {
-                return null; 
+                return null;
             }
         }
 
         return typeTreeVO;
     }
+
+
+
+    @RequestMapping("/tree")
+    public Response typeTree(@RequestParam(name = "keyword", required = false) String keyword) {
+        List<Type> rootTypes = typeService.getRootTypes();
+        List<TypeTreeVO> typeTreeList = new ArrayList<>();
+
+        // 遍历根节点，递归构建类型树
+        for (Type rootType : rootTypes) {
+            // 递归构建当前节点及其子节点
+            TypeTreeVO typeTreeVO = buildTree(rootType, keyword);
+            if (typeTreeVO != null) {
+                typeTreeList.add(typeTreeVO);
+            }
+        }
+        return new Response(1001, typeTreeList);
+    }
+
+
 }
