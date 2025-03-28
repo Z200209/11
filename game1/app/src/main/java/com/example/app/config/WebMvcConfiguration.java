@@ -1,9 +1,11 @@
 package com.example.app.config;
 
+import com.example.app.interceptor.AppInterceptor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
@@ -26,6 +28,10 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     @Bean
     public UserAuthorityResolver newUserAuthResolver() {
         return new UserAuthorityResolver(appArguments);
+    }
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new AppInterceptor()).addPathPatterns("/app/**");  // 拦截所有请求
     }
 
 }
