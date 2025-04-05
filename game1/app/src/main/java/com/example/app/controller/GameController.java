@@ -50,24 +50,39 @@ public class GameController {
         
         log.info("用户 {} 请求游戏详情，gameId: {}", loginUser.getId(), gameId);
         
-        Game game = gameService.getById(gameId);
+        // 获取游戏信息
+        Game game;
+        try {
+            game = gameService.getById(gameId);
+        } catch (Exception e) {
+            log.error("获取游戏信息失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
         if (game == null) {
             log.info("未找到游戏信息：{}", gameId);
             return new Response(4004);
         }
         
-        Type type;
+        // 获取类型信息
+        Type type = null;
         String typeName = null;
         String typeImage = null;
         
         if (game.getTypeId() != null) {
-            type = typeService.getById(game.getTypeId());
-            if (type != null) {
-                typeName = type.getTypeName();
-                typeImage = type.getImage();
+            try {
+                type = typeService.getById(game.getTypeId());
+                if (type != null) {
+                    typeName = type.getTypeName();
+                    typeImage = type.getImage();
+                }
+            } catch (Exception e) {
+                log.error("获取游戏类型失败: {}", e.getMessage(), e);
+                // 继续处理，类型不是必须的
             }
         }
         
+        // 处理游戏介绍JSON
         String gameIntroductionJson = game.getGameIntroduction();
         IntroductionListVO introductionListVO = new IntroductionListVO();
         List<IntroductionListVO.Block> contentBlocks = new ArrayList<>();
@@ -95,6 +110,7 @@ public class GameController {
         
         introductionListVO.setBlocks(contentBlocks);
         
+        // 构建返回对象
         GameInfoVO gameInfo = new GameInfoVO()
                 .setGameId(game.getId())
                 .setTypeName(typeName)
@@ -110,7 +126,7 @@ public class GameController {
             gameInfo.setImages(Arrays.asList(game.getImages().split("\\$")));
         }
 
-        return new Response(1001, gameInfo); // 返回成功
+        return new Response(1001, gameInfo);
     }
 
     /**
@@ -132,8 +148,9 @@ public class GameController {
         int currentPageSize = 10;
         Integer currentPage;
         
-        try {
-            if (wp != null && !wp.isEmpty()) {
+        // 解析wp参数
+        if (wp != null && !wp.isEmpty()) {
+            try {
                 byte[] bytes = Base64.getUrlDecoder().decode(wp);
                 String json = new String(bytes, StandardCharsets.UTF_8);
                 Wp receiveWp = JSON.parseObject(json, Wp.class);
@@ -146,90 +163,113 @@ public class GameController {
                 currentPageSize = receiveWp.getPageSize();
                 keyword = receiveWp.getKeyword();
                 typeId = receiveWp.getTypeId();
-            } else {
-                currentPage = 1;
+            } catch (Exception e) {
+                log.error("解析wp参数失败: {}", e.getMessage(), e);
+                return new Response(4004);
             }
-            
-            List<Game> gameList = gameService.getAllGame(currentPage, currentPageSize, keyword, typeId);
-            
-            // 收集类型ID
-            Set<BigInteger> typeIdSet = new HashSet<>();
-            for (Game game : gameList) {
-                BigInteger tid = game.getTypeId();
-                if (tid != null) {
-                    typeIdSet.add(tid);
-                }
+        } else {
+            currentPage = 1;
+        }
+        
+        // 获取游戏列表
+        List<Game> gameList;
+        try {
+            gameList = gameService.getAllGame(currentPage, currentPageSize, keyword, typeId);
+        } catch (Exception e) {
+            log.error("获取游戏列表失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        // 收集类型ID
+        Set<BigInteger> typeIdSet = new HashSet<>();
+        for (Game game : gameList) {
+            BigInteger tid = game.getTypeId();
+            if (tid != null) {
+                typeIdSet.add(tid);
             }
-            
-            // 获取类型信息
-            Map<BigInteger, String> typeMap = new HashMap<>();
-            if (!typeIdSet.isEmpty()) {
+        }
+        
+        // 获取类型信息
+        Map<BigInteger, String> typeMap = new HashMap<>();
+        if (!typeIdSet.isEmpty()) {
+            try {
                 List<Type> types = typeService.getTypeByIds(typeIdSet);
                 for (Type type : types) {
                     typeMap.put(type.getId(), type.getTypeName());
                 }
+            } catch (Exception e) {
+                log.error("获取类型信息失败: {}", e.getMessage(), e);
+                // 继续处理，类型不是必须的
+            }
+        }
+        
+        // 构建输出的wp对象
+        Wp outputWp = new Wp();
+        outputWp.setKeyword(keyword)
+                .setTypeId(typeId)
+                .setPage(currentPage + 1)
+                .setPageSize(currentPageSize);
+        
+        // 编码wp
+        String encodeWp;
+        try {
+            encodeWp = Base64.getUrlEncoder().encodeToString(JSON.toJSONString(outputWp).getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            log.error("编码wp失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        // 构建游戏列表数据
+        List<GameVO> gameVOList = new ArrayList<>();
+        for (Game game : gameList) {
+            if (game.getTypeId() == null || game.getImages() == null || game.getImages().isEmpty()) {
+                log.info("游戏数据不完整，跳过：{}", game.getId());
+                continue;
             }
             
-            // 构建输出的wp对象
-            Wp outputWp = new Wp();
-            outputWp.setKeyword(keyword)
-                    .setTypeId(typeId)
-                    .setPage(currentPage + 1)
-                    .setPageSize(currentPageSize);
+            String typeName = typeMap.get(game.getTypeId());
+            if (typeName == null) {
+                log.info("未找到游戏类型名称：{}", game.getTypeId());
+                continue;
+            }
             
-            // 编码wp
-            String encodeWp = Base64.getUrlEncoder().encodeToString(JSON.toJSONString(outputWp).getBytes(StandardCharsets.UTF_8));
+            String image = game.getImages().split("\\$")[0];
             
-            // 构建游戏列表数据
-            List<GameVO> gameVOList = new ArrayList<>();
-            for (Game game : gameList) {
-                if (game.getTypeId() == null || game.getImages() == null || game.getImages().isEmpty()) {
-                    log.info("游戏数据不完整，跳过：{}", game.getId());
-                    continue;
-                }
-                
-                String typeName = typeMap.get(game.getTypeId());
-                if (typeName == null) {
-                    log.info("未找到游戏类型名称：{}", game.getTypeId());
-                    continue;
-                }
-                
-                String image = game.getImages().split("\\$")[0];
-                
-                // 计算图片宽高比
+            // 计算图片宽高比
+            float ar = 0;
+            try {
                 String regex = ".*_(\\d+)x(\\d+)\\.png";
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(image);
-                float ar = 0;
                 if (matcher.find()) {
                     int width = Integer.parseInt(matcher.group(1));
                     int height = Integer.parseInt(matcher.group(2));
                     ar = (float) width / height;
                 }
-                
-                ImageVO imageVO = new ImageVO()
-                        .setSrc(image)
-                        .setAr(ar);
-                
-                GameVO gameVO = new GameVO()
-                        .setGameId(game.getId())
-                        .setGameName(game.getGameName())
-                        .setTypeName(typeName)
-                        .setImage(imageVO);
-                
-                gameVOList.add(gameVO);
+            } catch (Exception e) {
+                log.info("解析图片尺寸失败: {}", e.getMessage());
+                // 继续处理，宽高比不是必须的
             }
             
-            // 构建最终响应对象
-            GameListVO result = new GameListVO()
-                    .setGameList(gameVOList)
-                    .setWp(encodeWp);
+            ImageVO imageVO = new ImageVO()
+                    .setSrc(image)
+                    .setAr(ar);
             
-            return new Response(1001, result); // 返回成功
-        } catch (Exception e) {
-            log.error("获取游戏列表失败: {}", e.getMessage(), e);
-            return new Response(4004);
+            GameVO gameVO = new GameVO()
+                    .setGameId(game.getId())
+                    .setGameName(game.getGameName())
+                    .setTypeName(typeName)
+                    .setImage(imageVO);
+            
+            gameVOList.add(gameVO);
         }
+        
+        // 构建最终响应对象
+        GameListVO result = new GameListVO()
+                .setGameList(gameVOList)
+                .setWp(encodeWp);
+        
+        return new Response(1001, result);
     }
 }
 

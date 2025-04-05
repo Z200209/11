@@ -2,6 +2,7 @@ package com.example.console.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.example.console.annotations.VerifiedUser;
+import com.example.console.domain.UserInfoVO;
 import com.example.module.entity.Sign;
 import com.example.module.entity.User;
 import com.example.module.service.UserService;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 用户控制器
@@ -37,46 +36,68 @@ public class UserController {
     public Response login(@RequestParam(name = "phone") String phone,
                                  @RequestParam(name = "password") String password,
                                  HttpServletResponse response) {
+        // 参数验证
+        password = password.trim();
+        phone = phone.trim();
+        if (phone.isEmpty() || password.isEmpty()) {
+            return new Response(4005);
+        }
+        
+        // 验证手机号是否存在
+        User user;
         try {
-            // 参数验证
-            password = password.trim();
-            phone = phone.trim();
-            if (phone.isEmpty() || password.isEmpty()) {
-                return new Response(4005);
-            }
-            
-            // 验证手机号是否存在
-            User user = userService.getUserByPhone(phone);
-            if (user == null) {
-                return new Response(2014);
-            }
-            
-            // 验证密码
-            if (!new BCryptPasswordEncoder().matches(password, user.getPassword())) {
-                return new Response(1010);
-            }
-            
-            // 生成签名
-            Sign sign = new Sign();
-            sign.setId(user.getId());
-            int time = (int) (System.currentTimeMillis() / 1000 + 3600 * 3); // 3小时有效期
-            sign.setExpirationTime(time);
-            String token = Base64.getUrlEncoder().encodeToString(
+            user = userService.getUserByPhone(phone);
+        } catch (Exception e) {
+            log.error("查询用户信息失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        if (user == null) {
+            return new Response(2014);
+        }
+        
+        // 验证密码
+        boolean passwordMatches;
+        try {
+            passwordMatches = new BCryptPasswordEncoder().matches(password, user.getPassword());
+        } catch (Exception e) {
+            log.error("密码验证失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        if (!passwordMatches) {
+            return new Response(1010);
+        }
+        
+        // 生成签名
+        Sign sign = new Sign();
+        sign.setId(user.getId());
+        int time = (int) (System.currentTimeMillis() / 1000 + 3600 * 3); // 3小时有效期
+        sign.setExpirationTime(time);
+        
+        String token;
+        try {
+            token = Base64.getUrlEncoder().encodeToString(
                     JSON.toJSONString(sign).getBytes()
             );
-            
-            // 设置Cookie
+        } catch (Exception e) {
+            log.error("生成Token失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        // 设置Cookie
+        try {
             Cookie cookie = new Cookie("auth_token", token);
             cookie.setMaxAge(3 * 60 * 60);
             cookie.setPath("/");
             cookie.setHttpOnly(true);
             response.addCookie(cookie);
-            
-            return new Response(1001);
         } catch (Exception e) {
-            log.error("登录失败", e);
+            log.error("设置Cookie失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
+        
+        return new Response(1001);
     }
     
     /**
@@ -84,24 +105,19 @@ public class UserController {
      */
     @RequestMapping("/info")
     public Response getUserInfo(@VerifiedUser User loginUser) {
-        try {
-            // 验证用户是否登录
-            if (loginUser == null) {
-                return new Response(1002);
-            }
-            
-            // 构建用户信息，不包含敏感数据
-            Map<String, Object> userInfo = new HashMap<>();
-            userInfo.put("id", loginUser.getId());
-            userInfo.put("phone", loginUser.getPhone());
-            userInfo.put("name", loginUser.getName());
-            userInfo.put("avatar", loginUser.getAvatar());
-            
-            return new Response(1001, userInfo);
-        } catch (Exception e) {
-            log.error("获取用户信息失败", e);
-            return new Response(4004);
+        // 验证用户是否登录
+        if (loginUser == null) {
+            return new Response(1002);
         }
+        
+        // 构建用户信息对象
+        UserInfoVO userInfo = new UserInfoVO();
+        userInfo.setId(loginUser.getId());
+        userInfo.setPhone(loginUser.getPhone());
+        userInfo.setName(loginUser.getName());
+        userInfo.setAvatar(loginUser.getAvatar());
+
+        return new Response(1001, userInfo);
     }
     
     /**
@@ -118,7 +134,7 @@ public class UserController {
             
             return new Response(1001);
         } catch (Exception e) {
-            log.error("退出失败", e);
+            log.error("退出失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
     }

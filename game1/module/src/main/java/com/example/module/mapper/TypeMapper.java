@@ -40,4 +40,6 @@ public interface TypeMapper {
 
     List<Type> getRootTypes();
 
+    @Select("select * from type where type_name = #{typeName} and is_deleted = 0")
+    Type getTypeByName(String typeName);
 }

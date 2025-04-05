@@ -13,7 +13,9 @@ import com.example.module.utils.BaseUtils;
 import com.example.module.utils.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,26 +49,36 @@ public class TypeController {
             return new Response(1002);
         }
         
+        // 获取所有类型
+        List<Type> types;
         try {
-            List<Type> types = typeService.getAllType(keyword);
-            List<TypeListVO> typeList = new ArrayList<>();
-           for (Type type : types){
-               String formattedCreateTime = BaseUtils.timeStamp2DateGMT(type.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
-               String formattedUpdateTime = BaseUtils.timeStamp2DateGMT(type.getUpdateTime(), "yyyy-MM-dd HH:mm:ss");
-               TypeListVO typeListVO = new TypeListVO()
-                       .setTypeId(type.getId())
-                       .setTypeName(type.getTypeName())
-                       .setImage(type.getImage())
-                       .setParentId(type.getParentId())
-                       .setCreateTime(formattedCreateTime)
-                       .setUpdateTime(formattedUpdateTime);
-               typeList.add(typeListVO);
-           }
-            return new Response(1001, typeList);
+            types = typeService.getAllType(keyword);
         } catch (Exception e) {
-            log.error("获取类型列表失败", e);
+            log.error("获取类型列表失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
+        
+        // 构建类型列表
+        List<TypeListVO> typeList = new ArrayList<>();
+        for (Type type : types) {
+            try {
+                String formattedCreateTime = BaseUtils.timeStamp2DateGMT(type.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
+                String formattedUpdateTime = BaseUtils.timeStamp2DateGMT(type.getUpdateTime(), "yyyy-MM-dd HH:mm:ss");
+                TypeListVO typeListVO = new TypeListVO()
+                        .setTypeId(type.getId())
+                        .setTypeName(type.getTypeName())
+                        .setImage(type.getImage())
+                        .setParentId(type.getParentId())
+                        .setCreateTime(formattedCreateTime)
+                        .setUpdateTime(formattedUpdateTime);
+                typeList.add(typeListVO);
+            } catch (Exception e) {
+                log.error("构建类型VO失败: {}", e.getMessage(), e);
+                // 跳过这个类型，继续处理其他类型
+            }
+        }
+        
+        return new Response(1001, typeList);
     }
 
     /**
@@ -83,32 +95,45 @@ public class TypeController {
             return new Response(1002);
         }
         
+        // 获取类型信息
+        Type type;
         try {
-            Type type = typeService.getById(typeId);
-            if (type == null) {
-                log.info("未找到游戏类型：{}", typeId);
-                return new Response(4006);
-            }
-            String formattedCreateTime = BaseUtils.timeStamp2DateGMT(type.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
-            String formattedUpdateTime = BaseUtils.timeStamp2DateGMT(type.getUpdateTime(), "yyyy-MM-dd HH:mm:ss");
-            
-            TypeDetailVO typeDetailVO = new TypeDetailVO()
-                    .setTypeId(type.getId())
-                    .setTypeName(type.getTypeName())
-                    .setParentId(type.getParentId())
-                    .setImage(type.getImage())
-                    .setCreateTime(formattedCreateTime)
-                    .setUpdateTime(formattedUpdateTime);
-                    
-            return new Response(1001, typeDetailVO);
+            type = typeService.getById(typeId);
         } catch (Exception e) {
-            log.error("获取类型详情失败", e);
+            log.error("获取类型详情失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
+        
+        if (type == null) {
+            log.info("未找到游戏类型：{}", typeId);
+            return new Response(4006);
+        }
+        
+        // 格式化时间
+        String formattedCreateTime;
+        String formattedUpdateTime;
+        try {
+            formattedCreateTime = BaseUtils.timeStamp2DateGMT(type.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
+            formattedUpdateTime = BaseUtils.timeStamp2DateGMT(type.getUpdateTime(), "yyyy-MM-dd HH:mm:ss");
+        } catch (Exception e) {
+            log.error("格式化时间失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        // 构建响应对象
+        TypeDetailVO typeDetailVO = new TypeDetailVO()
+                .setTypeId(type.getId())
+                .setTypeName(type.getTypeName())
+                .setParentId(type.getParentId())
+                .setImage(type.getImage())
+                .setCreateTime(formattedCreateTime)
+                .setUpdateTime(formattedUpdateTime);
+                
+        return new Response(1001, typeDetailVO);
     }
 
     /**
-     * 创建类型
+     * 新增类型
      */
     @RequestMapping("/create")
     public Response createType(
@@ -116,13 +141,13 @@ public class TypeController {
             @RequestParam(name = "typeName") String typeName,
             @RequestParam(name = "image") String image,
             @RequestParam(name = "parentId", required = false) BigInteger parentId) {
-        
+
         // 验证用户是否登录
         if (loginUser == null) {
             log.warn("未登录用户尝试创建类型");
             return new Response(1002);
         }
-        
+
         try {
             // 参数验证
             typeName = typeName.trim();
@@ -130,7 +155,7 @@ public class TypeController {
                 log.info("游戏类型名称不能为空字符串");
                 return new Response(4005);
             }
-            
+
             // 创建类型
             BigInteger typeId = typeService.edit(null, typeName, image, parentId);
             return new Response(1001);
@@ -150,13 +175,13 @@ public class TypeController {
             @RequestParam(name = "typeName") String typeName,
             @RequestParam(name = "image") String image,
             @RequestParam(name = "parentId", required = false) BigInteger parentId) {
-        
+
         // 验证用户是否登录
         if (loginUser == null) {
             log.warn("未登录用户尝试更新类型");
             return new Response(1002);
         }
-        
+
         try {
             // 参数验证
             typeName = typeName.trim();
@@ -164,14 +189,14 @@ public class TypeController {
                 log.info("游戏类型名称不能为空字符串");
                 return new Response(4005);
             }
-            
+
             // 检查类型是否存在
             Type type = typeService.getById(typeId);
             if (type == null) {
                 log.info("未找到游戏类型：{}", typeId);
                 return new Response(4006);
             }
-            
+
             // 更新类型
             typeService.edit(typeId, typeName, image, parentId);
             return new Response(1001);
@@ -195,29 +220,38 @@ public class TypeController {
             return new Response(1002);
         }
         
+        // 参数验证
+        if (typeId == null) {
+            log.info("游戏类型ID不能为空");
+            return new Response(4005);
+        }
+        
+        // 检查该类型下是否有游戏
+        List<Game> games;
         try {
-            // 参数验证
-            if (typeId == null) {
-                log.info("游戏类型ID不能为空");
-                return new Response(4005);
-            }
-            
-            // 检查该类型下是否有游戏
-            List<Game> games = gameService.getAllGameByTypeId(typeId);
-            if (games != null && !games.isEmpty()) {
-                log.info("该类型下有游戏，不能删除：{}", typeId);
-                return new Response(4005);
-            }
-            
-            // 删除类型
-            int result = typeService.delete(typeId);
-            if (result == 1) {
-                return new Response(1001);
-            } else {
-                return new Response(4004);
-            }
+            games = gameService.getAllGameByTypeId(typeId);
         } catch (Exception e) {
-            log.error("删除类型失败", e);
+            log.error("获取类型下游戏列表失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        if (games != null && !games.isEmpty()) {
+            log.info("该类型下有游戏，不能删除：{}", typeId);
+            return new Response(4005);
+        }
+        
+        // 删除类型
+        int result;
+        try {
+            result = typeService.delete(typeId);
+        } catch (Exception e) {
+            log.error("删除类型失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        if (result == 1) {
+            return new Response(1001);
+        } else {
             return new Response(4004);
         }
     }

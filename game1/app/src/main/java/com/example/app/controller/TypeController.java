@@ -38,24 +38,33 @@ public class TypeController {
     @RequestMapping("/list")
     public Response typeList(@VerifiedUser User loginUser,
                                           @RequestParam(name = "keyword", required=false) String keyword) {
+        // 用户验证
+        if (loginUser == null) {
+            return new Response(1002);
+        }
+        
+        // 获取类型列表
+        List<Type> typeList;
         try {
-            // 用户验证
-            if (loginUser == null) {
-                return new Response(1002);
-            }
+            typeList = typeService.getParentTypeList(keyword);
+        } catch (Exception e) {
+            log.error("获取类型列表失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        if (typeList.isEmpty()) {
+            log.info("没有找到类型信息");
+            return new Response(4006);
+        }
+        
+        // 构建返回数据
+        List<TypeVO> typeVOList = new ArrayList<>();
+        for (Type type : typeList) {
+            TypeVO typeVO = new TypeVO();
+            List<ChildrenVO> childrenList = new ArrayList<>();
             
-            List<Type> typeList = typeService.getParentTypeList(keyword);
-            if (typeList.isEmpty()) {
-                log.info("没有找到类型信息");
-                return new Response(4006);
-            }
-            
-            List<TypeVO> typeVOList = new ArrayList<>();
-            for (Type type : typeList) {
-                TypeVO typeVO = new TypeVO();
-                List<ChildrenVO> childrenList = new ArrayList<>();
-                
-                // 获取子类型列表
+            // 获取子类型列表
+            try {
                 for (Type children : typeService.getChildrenList(type.getId())) {
                     ChildrenVO childrenListVO = new ChildrenVO();
                     childrenListVO.setTypeId(children.getId())
@@ -63,19 +72,19 @@ public class TypeController {
                             .setImage(children.getImage());
                     childrenList.add(childrenListVO);
                 }
-                
-                typeVO.setTypeId(type.getId())
-                        .setTypeName(type.getTypeName())
-                        .setImage(type.getImage())
-                        .setChildrenList(childrenList);
-                typeVOList.add(typeVO);
+            } catch (Exception e) {
+                log.error("获取子类型列表失败: {}", e.getMessage(), e);
+                // 继续处理，子类型不是必须的
             }
             
-            return new Response(1001, typeVOList); // 返回成功
-        } catch (Exception e) {
-            log.error("获取类型列表失败: {}", e.getMessage(), e);
-            return new Response(4004);
+            typeVO.setTypeId(type.getId())
+                    .setTypeName(type.getTypeName())
+                    .setImage(type.getImage())
+                    .setChildrenList(childrenList);
+            typeVOList.add(typeVO);
         }
+        
+        return new Response(1001, typeVOList);
     }
 
     /**
@@ -84,38 +93,53 @@ public class TypeController {
     @RequestMapping("/childrenList")
     public Response childrenList(@VerifiedUser User loginUser,
                                                 @RequestParam(name = "typeId") BigInteger typeId) {
+        // 用户验证
+        if (loginUser == null) {
+            return new Response(1002);
+        }
+        
+        // 获取子类型列表
+        List<Type> childrenList;
         try {
-            // 用户验证
-            if (loginUser == null) {
-                return new Response(1002);
+            childrenList = typeService.getChildrenList(typeId);
+        } catch (Exception e) {
+            log.error("获取子类型列表失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        List<ChildrenVO> childrenVOList = new ArrayList<>();
+        for (Type children : childrenList) {
+            if (children == null) {
+                log.info("没有找到类型信息");
+                continue;
             }
             
-            // 获取子类型列表
-            List<Type> childrenList = typeService.getChildrenList(typeId);
-            List<ChildrenVO> childrenVOList = new ArrayList<>();
-            
-            for (Type children : childrenList) {
-                if (children == null) {
-                    log.info("没有找到类型信息");
-                    continue;
-                }
-                
-                ChildrenVO childrenVO = new ChildrenVO();
-                childrenVO.setTypeId(children.getId())
-                        .setTypeName(children.getTypeName())
-                        .setImage(children.getImage());
-                childrenVOList.add(childrenVO);
+            ChildrenVO childrenVO = new ChildrenVO();
+            childrenVO.setTypeId(children.getId())
+                    .setTypeName(children.getTypeName())
+                    .setImage(children.getImage());
+            childrenVOList.add(childrenVO);
+        }
+        
+        // 获取游戏列表
+        List<Game> gamesByType;
+        try {
+            gamesByType = gameService.getAllGameByTypeId(typeId);
+        } catch (Exception e) {
+            log.error("获取游戏列表失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        List<ChildreGameVO> childreGameVOList = new ArrayList<>();
+        for (Game game : gamesByType) {
+            if (game == null || game.getTypeId() == null || game.getImages() == null || game.getImages().isEmpty()) {
+                log.info("游戏数据不完整，跳过：{}", game.getId());
+                continue;
             }
             
-            // 获取游戏列表
-            List<ChildreGameVO> childreGameVOList = new ArrayList<>();
-            for (Game game : gameService.getAllGameByTypeId(typeId)) {
-                if (game == null || game.getTypeId() == null || game.getImages() == null || game.getImages().isEmpty()) {
-                    log.info("游戏数据不完整，跳过：{}", game.getId());
-                    continue;
-                }
-                
-                Type gameType = typeService.getById(game.getTypeId());
+            Type gameType;
+            try {
+                gameType = typeService.getById(game.getTypeId());
                 if (gameType == null) {
                     log.info("未找到游戏类型：{}", game.getTypeId());
                     continue;
@@ -127,17 +151,17 @@ public class TypeController {
                         .setImage(game.getImages().split("\\$")[0])
                         .setTypeName(gameType.getTypeName());
                 childreGameVOList.add(childreGameVO);
+            } catch (Exception e) {
+                log.error("获取游戏类型失败: {}", e.getMessage(), e);
+                // 继续处理下一个游戏
             }
-            
-            // 构建返回对象
-            ChildrenListVO result = new ChildrenListVO()
-                    .setChildrenList(childrenVOList)
-                    .setGameList(childreGameVOList);
-            
-            return new Response(1001, result); // 返回成功
-        } catch (Exception e) {
-            log.error("获取子类型列表失败: {}", e.getMessage(), e);
-            return new Response(4004);
         }
+        
+        // 构建返回对象
+        ChildrenListVO result = new ChildrenListVO()
+                .setChildrenList(childrenVOList)
+                .setGameList(childreGameVOList);
+        
+        return new Response(1001, result);
     }
 }

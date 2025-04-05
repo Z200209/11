@@ -1,5 +1,6 @@
 package com.example.app.config;
 
+
 import com.example.app.interceptor.AppInterceptor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
+
 
     private final ApplicationArguments appArguments;
 
@@ -29,9 +31,17 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     public UserAuthorityResolver newUserAuthResolver() {
         return new UserAuthorityResolver(appArguments);
     }
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AppInterceptor()).addPathPatterns("/app/**");  // 拦截所有请求
-    }
+
+@Override
+public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(new AppInterceptor())
+            .addPathPatterns("/console/**")
+            .excludePathPatterns(
+                    "/app/user/login",
+                    "/app/user/register",
+                    "/app/user/logout"
+            );
+}
+
 
 }

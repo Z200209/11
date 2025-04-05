@@ -110,5 +110,8 @@ public class TypeService {
         return mapper.getRootTypes();
     }
 
+    public Type getTypeByName(String typeName) {
+        return mapper.getTypeByName(typeName);
+    }
 }
 

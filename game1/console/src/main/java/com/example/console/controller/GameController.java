@@ -65,50 +65,51 @@ public class GameController {
             return new Response(1002);
         }
         
+        // 参数验证
+        gameName = gameName.trim();
+        gamePublisher = gamePublisher.trim();
+
+        if (gameName.isEmpty()) {
+            log.info("游戏名称不能为空字符串");
+            return new Response(4005);
+        }
+        
+        if (price < 0) {
+            log.info("游戏价格不能为负数");
+            return new Response(4005);
+        }
+
+        if (gameIntroduction == null) {
+            log.info("游戏介绍不能为空字符串");
+            return new Response(4005);
+        }
+        
+        // 解析游戏介绍JSON
+        JSONObject gameIntroductionObj;
         try {
-            gameName = gameName.trim();
-            gamePublisher = gamePublisher.trim();
-
-            // 参数验证
-            if (gameName.isEmpty()) {
-                log.info("游戏名称不能为空字符串");
-                return new Response(4005);
-            }
-            
-            if (price < 0) {
-                log.info("游戏价格不能为负数");
-                return new Response(4005);
-            }
-
-            if (gameIntroduction == null) {
-                log.info("游戏介绍不能为空字符串");
-                return new Response(4005);
-            }
-            
-            // 解析游戏介绍JSON
-            JSONObject gameIntroductionObj;
-            try {
-                gameIntroductionObj = JSON.parseObject(gameIntroduction);
-            } catch (Exception e) {
-                log.info("游戏介绍JSON解析失败: {}", e.getMessage());
-                return new Response(4005);
-            }
-            
-            // 验证blocks数组
-            JSONArray blocksArray = gameIntroductionObj.getJSONArray("blocks");
-            if (blocksArray == null || blocksArray.isEmpty()) {
-                log.info("游戏介绍blocks数组为空");
-                return new Response(4005);
-            }
-            
-            // 创建游戏
-            BigInteger gameId = gameService.edit(null, gameName, price, gameIntroduction, gameDate, gamePublisher, images, typeId);
-            
-            return new Response<>(1001, "创建成功，ID: " + gameId);
+            gameIntroductionObj = JSON.parseObject(gameIntroduction);
         } catch (Exception e) {
-            log.error("创建游戏失败", e);
+            log.info("游戏介绍JSON解析失败: {}", e.getMessage());
+            return new Response(4005);
+        }
+        
+        // 验证blocks数组
+        JSONArray blocksArray = gameIntroductionObj.getJSONArray("blocks");
+        if (blocksArray == null || blocksArray.isEmpty()) {
+            log.info("游戏介绍blocks数组为空");
+            return new Response(4005);
+        }
+        
+        // 创建游戏
+        BigInteger gameId;
+        try {
+            gameId = gameService.edit(null, gameName, price, gameIntroduction, gameDate, gamePublisher, images, typeId);
+        } catch (Exception e) {
+            log.error("创建游戏失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
+        
+        return new Response<>(1001, "创建成功，ID: " + gameId);
     }
 
     /**
@@ -131,58 +132,65 @@ public class GameController {
             log.warn("未登录用户尝试更新游戏");
             return new Response(1002);
         }
+
+        // 参数验证
+        gameName = gameName.trim();
+        gamePublisher = gamePublisher.trim();
+
+        if (gameName.isEmpty()) {
+            log.info("游戏名称不能为空字符串");
+            return new Response(4005);
+        }
         
+        if (price < 0) {
+            log.info("游戏价格不能为负数");
+            return new Response(4005);
+        }
+
+        if (gameIntroduction == null) {
+            log.info("游戏介绍不能为空字符串");
+            return new Response(4005);
+        }
+        
+        // 解析游戏介绍JSON
+        JSONObject gameIntroductionObj;
         try {
-            gameName = gameName.trim();
-            gamePublisher = gamePublisher.trim();
-
-            // 参数验证
-            if (gameName.isEmpty()) {
-                log.info("游戏名称不能为空字符串");
-                return new Response(4005);
-            }
-            
-            if (price < 0) {
-                log.info("游戏价格不能为负数");
-                return new Response(4005);
-            }
-
-            if (gameIntroduction == null) {
-                log.info("游戏介绍不能为空字符串");
-                return new Response(4005);
-            }
-            
-            // 解析游戏介绍JSON
-            JSONObject gameIntroductionObj;
-            try {
-                gameIntroductionObj = JSON.parseObject(gameIntroduction);
-            } catch (Exception e) {
-                log.info("游戏介绍JSON解析失败: {}", e.getMessage());
-                return new Response(4005);
-            }
-            
-            // 验证blocks数组
-            JSONArray blocksArray = gameIntroductionObj.getJSONArray("blocks");
-            if (blocksArray == null || blocksArray.isEmpty()) {
-                log.info("游戏介绍blocks数组为空");
-                return new Response(4005);
-            }
-            
-            // 检查游戏是否存在
-            Game existingGame = gameService.getById(gameId);
-            if (existingGame == null) {
-                log.info("未找到游戏: {}", gameId);
-                return new Response(4006);
-            }
-            
-            // 更新游戏
-            gameService.edit(gameId, gameName, price, gameIntroduction, gameDate, gamePublisher, images, typeId);
-            
-            return new Response(1001);
+            gameIntroductionObj = JSON.parseObject(gameIntroduction);
         } catch (Exception e) {
-            log.error("更新游戏失败", e);
+            log.info("游戏介绍JSON解析失败: {}", e.getMessage());
+            return new Response(4005);
+        }
+        
+        // 验证blocks数组
+        JSONArray blocksArray = gameIntroductionObj.getJSONArray("blocks");
+        if (blocksArray == null || blocksArray.isEmpty()) {
+            log.info("游戏介绍blocks数组为空");
+            return new Response(4005);
+        }
+        
+        // 检查游戏是否存在
+        Game existingGame;
+        try {
+            existingGame = gameService.getById(gameId);
+        } catch (Exception e) {
+            log.error("获取游戏信息失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
+        
+        if (existingGame == null) {
+            log.info("未找到游戏: {}", gameId);
+            return new Response(4006);
+        }
+        
+        // 更新游戏
+        try {
+            gameService.edit(gameId, gameName, price, gameIntroduction, gameDate, gamePublisher, images, typeId);
+        } catch (Exception e) {
+            log.error("更新游戏失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        return new Response(1001);
     }
 
     /**
@@ -201,34 +209,46 @@ public class GameController {
             return new Response(1002);
         }
         
+        int pageSize = 10;
+        
+        // 获取游戏列表和总数
+        List<Game> gameList;
+        Integer total;
         try {
-            int pageSize = 10;
-            
-            // 获取游戏列表
-            List<Game> gameList = gameService.getAllGame(page, pageSize, keyword, typeId);
-            Integer total = gameService.getTotalCount(keyword);
-            
-            // 收集类型ID
-            Set<BigInteger> typeIdSet = new HashSet<>();
-            for (Game game : gameList) {
-                BigInteger tid = game.getTypeId();
-                if (tid != null) {
-                    typeIdSet.add(tid);
-                }
+            gameList = gameService.getAllGame(page, pageSize, keyword, typeId);
+            total = gameService.getTotalCount(keyword);
+        } catch (Exception e) {
+            log.error("获取游戏列表失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        // 收集类型ID
+        Set<BigInteger> typeIdSet = new HashSet<>();
+        for (Game game : gameList) {
+            BigInteger tid = game.getTypeId();
+            if (tid != null) {
+                typeIdSet.add(tid);
             }
-            
-            // 获取类型信息
-            Map<BigInteger, String> typeMap = new HashMap<>();
-            if (!typeIdSet.isEmpty()) {
+        }
+        
+        // 获取类型信息
+        Map<BigInteger, String> typeMap = new HashMap<>();
+        if (!typeIdSet.isEmpty()) {
+            try {
                 List<Type> types = typeService.getTypeByIds(typeIdSet);
                 for (Type type : types) {
                     typeMap.put(type.getId(), type.getTypeName());
                 }
+            } catch (Exception e) {
+                log.error("获取类型信息失败: {}", e.getMessage(), e);
+                // 继续处理，类型不是必须的
             }
-            
-            // 构建游戏列表数据
-            List<GameListVO> gameVOList = new ArrayList<>();
-            for (Game game : gameList) {
+        }
+        
+        // 构建游戏列表数据
+        List<GameListVO> gameVOList = new ArrayList<>();
+        for (Game game : gameList) {
+            try {
                 String typeName = typeMap.get(game.getTypeId());
                 String formattedCreateTime = BaseUtils.timeStamp2DateGMT(game.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
                 String formattedUpdateTime = BaseUtils.timeStamp2DateGMT(game.getUpdateTime(), "yyyy-MM-dd HH:mm:ss");
@@ -242,20 +262,20 @@ public class GameController {
                         .setUpdateTime(formattedUpdateTime);
                 
                 gameVOList.add(gameVO);
+            } catch (Exception e) {
+                log.error("构建游戏VO失败: {}", e.getMessage(), e);
+                // 跳过这个游戏，继续处理其他游戏
             }
-            
-            // 构建最终响应对象
-            Map<String, Object> result = new HashMap<>();
-            result.put("list", gameVOList);
-            result.put("total", total);
-            result.put("page", page);
-            result.put("pageSize", pageSize);
-            
-            return new Response(1001, result);
-        } catch (Exception e) {
-            log.error("获取游戏列表失败: {}", e.getMessage(), e);
-            return new Response(4004);
         }
+        
+        // 构建最终响应对象
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", gameVOList);
+        result.put("total", total);
+        result.put("page", page);
+        result.put("pageSize", pageSize);
+        
+        return new Response(1001, result);
     }
 
 
@@ -274,48 +294,68 @@ public class GameController {
             return new Response(1002);
         }
         
+        // 获取游戏信息
+        Game game;
         try {
-            Game game = gameService.getById(gameId);
-            if (game == null) {
-                log.info("未找到游戏信息：{}", gameId);
-                return new Response(4006);
-            }
-            
-            String formattedCreateTime = BaseUtils.timeStamp2DateGMT(game.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
-            String formattedUpdateTime = BaseUtils.timeStamp2DateGMT(game.getUpdateTime(), "yyyy-MM-dd HH:mm:ss");
-            
-            BigInteger typeId = game.getTypeId();
-            Type type = typeService.getById(typeId);
+            game = gameService.getById(gameId);
+        } catch (Exception e) {
+            log.error("获取游戏详情失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        if (game == null) {
+            log.info("未找到游戏信息：{}", gameId);
+            return new Response(4006);
+        }
+    
+        // 格式化时间
+        String formattedCreateTime;
+        String formattedUpdateTime;
+        try {
+            formattedCreateTime = BaseUtils.timeStamp2DateGMT(game.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
+            formattedUpdateTime = BaseUtils.timeStamp2DateGMT(game.getUpdateTime(), "yyyy-MM-dd HH:mm:ss");
+        } catch (Exception e) {
+            log.error("格式化时间失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+        
+        // 获取类型信息
+        BigInteger typeId = game.getTypeId();
+        Type type;
+        String typeName;
+        String typeImage;
+        try {
+            type = typeService.getById(typeId);
             if (type == null) {
                 log.info("未找到游戏类型：{}", typeId);
                 return new Response(4006);
             }
-            
-            String typeName = type.getTypeName();
-            String typeImage = type.getImage();
-            
-            DetailVO detailVO = new DetailVO()
-                    .setTypeName(typeName)
-                    .setTypeImage(typeImage)
-                    .setGameId(game.getId())
-                    .setGameName(game.getGameName())
-                    .setPrice(game.getPrice())
-                    .setGameIntroduction(game.getGameIntroduction())
-                    .setGameDate(game.getGameDate())
-                    .setGamePublisher(game.getGamePublisher())
-                    .setCreateTime(formattedCreateTime)
-                    .setUpdateTime(formattedUpdateTime);
-            
-            // 处理图片列表
-            if (game.getImages() != null && !game.getImages().isEmpty()) {
-                detailVO.setImages(Arrays.asList(game.getImages().split("\\$")));
-            }
-            
-            return new Response(1001, detailVO);
+            typeName = type.getTypeName();
+            typeImage = type.getImage();
         } catch (Exception e) {
-            log.error("获取游戏详情失败", e);
+            log.error("获取游戏类型失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
+        
+        // 构建响应对象
+        DetailVO detailVO = new DetailVO()
+                .setTypeName(typeName)
+                .setTypeImage(typeImage)
+                .setGameId(game.getId())
+                .setGameName(game.getGameName())
+                .setPrice(game.getPrice())
+                .setGameIntroduction(game.getGameIntroduction())
+                .setGameDate(game.getGameDate())
+                .setGamePublisher(game.getGamePublisher())
+                .setCreateTime(formattedCreateTime)
+                .setUpdateTime(formattedUpdateTime);
+        
+        // 处理图片列表
+        if (game.getImages() != null && !game.getImages().isEmpty()) {
+            detailVO.setImages(Arrays.asList(game.getImages().split("\\$")));
+        }
+        
+        return new Response(1001, detailVO);
     }
 
     /**
