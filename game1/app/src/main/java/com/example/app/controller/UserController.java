@@ -2,7 +2,7 @@ package com.example.app.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.example.app.annotations.VerifiedUser;
-import com.example.app.domain.UserInfoVO;
+import com.example.app.domain.user.UserInfoVO;
 import com.example.module.entity.Sign;
 import com.example.module.entity.User;
 import com.example.module.service.UserService;

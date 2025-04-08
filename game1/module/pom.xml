@@ -48,15 +48,11 @@
             <artifactId>spring-security-crypto</artifactId>
             <version>5.7.3</version> <!-- 使用最新版本 -->
         </dependency>
-
-
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.76</version> <!-- 请根据需要选择最新版本 -->
         </dependency>
-
-
     </dependencies>
 
 

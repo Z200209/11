@@ -22,7 +22,7 @@ public class BaseUtils {
      */
     public static boolean isEmpty(Object obj) {
         if (obj instanceof List) {
-            return obj == null || ((List<?>) obj).size() == 0;
+            return ((List<?>) obj).isEmpty();
         } else if (obj instanceof Number) {
             DecimalFormat decimalFormat = new DecimalFormat();
             try {

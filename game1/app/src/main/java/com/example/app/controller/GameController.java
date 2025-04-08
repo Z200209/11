@@ -1,16 +1,18 @@
 package com.example.app.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.example.app.annotations.VerifiedUser;
 import com.example.app.domain.*;
+import com.example.app.domain.game.GameInfoVO;
+import com.example.app.domain.game.GameListVO;
+import com.example.app.domain.game.GameVO;
+import com.example.app.domain.game.ImageVO;
 import com.example.module.entity.Game;
 import com.example.module.entity.Type;
 import com.example.module.entity.User;
 import com.example.module.entity.Wp;
-import com.example.module.service.GameService;
-import com.example.module.service.TypeService;
+import com.example.module.service.Game.GameService;
+import com.example.module.service.Game.TypeService;
 import com.example.module.utils.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,33 +84,7 @@ public class GameController {
             }
         }
         
-        // 处理游戏介绍JSON
-        String gameIntroductionJson = game.getGameIntroduction();
-        IntroductionListVO introductionListVO = new IntroductionListVO();
-        List<IntroductionListVO.Block> contentBlocks = new ArrayList<>();
 
-        // 解析游戏介绍JSON
-        if (gameIntroductionJson != null && !gameIntroductionJson.isEmpty()) {
-            try {
-                JSONObject gameIntroductionObj = JSON.parseObject(gameIntroductionJson);
-                JSONArray blocksArray = gameIntroductionObj.getJSONArray("blocks");
-                if (blocksArray != null) {
-                    for (int i = 0; i < blocksArray.size(); i++) {
-                        JSONObject blockObj = blocksArray.getJSONObject(i);
-                        IntroductionListVO.Block contentBlock = new IntroductionListVO.Block();
-                        contentBlock.setOrder(blockObj.getInteger("order"));
-                        contentBlock.setType(IntroductionType.valueOf(blockObj.getString("type").toUpperCase()));
-                        contentBlock.setContent(blockObj.getString("content"));
-                        contentBlocks.add(contentBlock);
-                    }
-                }
-            } catch (Exception e) {
-                log.error("解析游戏介绍JSON失败: {}", e.getMessage());
-                return new Response(4005);
-            }
-        }
-        
-        introductionListVO.setBlocks(contentBlocks);
         
         // 构建返回对象
         GameInfoVO gameInfo = new GameInfoVO()
@@ -117,7 +93,6 @@ public class GameController {
                 .setTypeImage(typeImage)
                 .setGameName(game.getGameName())
                 .setPrice(game.getPrice())
-                .setGameIntroduction(introductionListVO)
                 .setGameDate(game.getGameDate())
                 .setGamePublisher(game.getGamePublisher());
                 
@@ -125,7 +100,14 @@ public class GameController {
         if (game.getImages() != null && !game.getImages().isEmpty()) {
             gameInfo.setImages(Arrays.asList(game.getImages().split("\\$")));
         }
-
+        try {
+            List<BaseIntroductionVO> introductionList =JSON.parseArray(game.getGameIntroduction(), BaseIntroductionVO.class);
+            gameInfo.setGameIntroduction(introductionList);
+        }
+        catch (Exception e) {
+            log.error("解析游戏介绍失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
         return new Response(1001, gameInfo);
     }
 

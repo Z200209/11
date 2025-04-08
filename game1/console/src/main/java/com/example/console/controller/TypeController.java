@@ -1,27 +1,24 @@
 package com.example.console.controller;
 
 import com.example.console.annotations.VerifiedUser;
-import com.example.console.domain.TypeDetailVO;
-import com.example.console.domain.TypeListVO;
-import com.example.console.domain.TypeTreeVO;
+import com.example.console.domain.type.TypeDetailVO;
+import com.example.console.domain.type.TypeListVO;
+import com.example.console.domain.type.TypeTreeVO;
 import com.example.module.entity.Game;
 import com.example.module.entity.Type;
 import com.example.module.entity.User;
-import com.example.module.service.GameService;
-import com.example.module.service.TypeService;
+import com.example.module.service.Game.GameService;
+import com.example.module.service.Game.TypeService;
 import com.example.module.utils.BaseUtils;
 import com.example.module.utils.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigInteger;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 

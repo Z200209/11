@@ -1,4 +1,4 @@
-package com.example.console.domain;
+package com.example.console.domain.user;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

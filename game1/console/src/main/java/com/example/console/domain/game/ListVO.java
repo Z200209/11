@@ -1,9 +1,8 @@
-package com.example.console.domain;
+package com.example.console.domain.game;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.math.BigInteger;
 import java.util.List;
 
 @Data

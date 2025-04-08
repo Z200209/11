@@ -1,16 +1,18 @@
-package com.example.console.domain;
+package com.example.console.domain.type;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigInteger;
-import java.util.List;
+
 
 @Data
 @Accessors(chain = true)
-public class TypeVO {
+public class TypeListVO {
     private BigInteger typeId;
     private String typeName;
     private String image;
-    private List<ChildrenListVO> childrenList;
+    private BigInteger parentId;
+    private String createTime;
+    private String updateTime;
 }

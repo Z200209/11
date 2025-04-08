@@ -2,7 +2,7 @@ package com.example.console.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.example.console.annotations.VerifiedUser;
-import com.example.console.domain.UserInfoVO;
+import com.example.console.domain.user.UserInfoVO;
 import com.example.module.entity.Sign;
 import com.example.module.entity.User;
 import com.example.module.service.UserService;
@@ -84,19 +84,12 @@ public class UserController {
             log.error("生成Token失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
-        
-        // 设置Cookie
-        try {
+
             Cookie cookie = new Cookie("auth_token", token);
             cookie.setMaxAge(3 * 60 * 60);
             cookie.setPath("/");
             cookie.setHttpOnly(true);
             response.addCookie(cookie);
-        } catch (Exception e) {
-            log.error("设置Cookie失败: {}", e.getMessage(), e);
-            return new Response(4004);
-        }
-        
         return new Response(1001);
     }
     

@@ -1,12 +1,15 @@
 package com.example.app.controller;
 
 import com.example.app.annotations.VerifiedUser;
-import com.example.app.domain.*;
+import com.example.app.domain.type.ChildreGameVO;
+import com.example.app.domain.type.ChildrenListVO;
+import com.example.app.domain.type.ChildrenVO;
+import com.example.app.domain.type.TypeVO;
 import com.example.module.entity.Game;
 import com.example.module.entity.Type;
 import com.example.module.entity.User;
-import com.example.module.service.GameService;
-import com.example.module.service.TypeService;
+import com.example.module.service.Game.GameService;
+import com.example.module.service.Game.TypeService;
 import com.example.module.utils.Response;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

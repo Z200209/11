@@ -5,7 +5,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class ImageVO {
-    private String src;
-    private Float ar;
+public class BaseIntroductionVO {
+    private String type;
+    private String content;
 }

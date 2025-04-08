@@ -1,4 +1,4 @@
-package com.example.app.domain;
+package com.example.app.domain.game;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

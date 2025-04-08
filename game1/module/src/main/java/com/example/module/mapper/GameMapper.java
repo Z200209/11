@@ -25,7 +25,7 @@ public interface GameMapper  {
     int delete(@Param("id") BigInteger id, @Param("time") Integer time);
 
 
-    List<Game> getAll(@Param("offset") Integer offset, @Param("pageSize") Integer pageSize , @Param("keyword") String keyword, @Param("typeId") BigInteger typeId, @Param("ids") String ids);
+        List<Game> getAll(@Param("offset") Integer offset, @Param("pageSize") Integer pageSize , @Param("keyword") String keyword, @Param("typeId") BigInteger typeId, @Param("ids") String ids);
 
     @Select("select * from game where type_id = #{typeId}")
     List<Game> getAllGameByTypeId(@Param("typeId") BigInteger typeId);

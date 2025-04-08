@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.example.console.domain.BaseIntroductionVO;
 import com.example.module.utils.BaseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,16 +18,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.example.console.annotations.VerifiedUser;
-import com.example.console.domain.DetailVO;
-import com.example.console.domain.GameListVO;
+import com.example.console.domain.game.DetailVO;
+import com.example.console.domain.game.GameListVO;
 import com.example.module.entity.Game;
 import com.example.module.entity.Type;
 import com.example.module.entity.User;
-import com.example.module.service.GameService;
-import com.example.module.service.TypeService;
+import com.example.module.service.Game.GameService;
+import com.example.module.service.Game.TypeService;
 import com.example.module.utils.Response;
 import lombok.extern.slf4j.Slf4j;
 
@@ -83,23 +82,7 @@ public class GameController {
             log.info("游戏介绍不能为空字符串");
             return new Response(4005);
         }
-        
-        // 解析游戏介绍JSON
-        JSONObject gameIntroductionObj;
-        try {
-            gameIntroductionObj = JSON.parseObject(gameIntroduction);
-        } catch (Exception e) {
-            log.info("游戏介绍JSON解析失败: {}", e.getMessage());
-            return new Response(4005);
-        }
-        
-        // 验证blocks数组
-        JSONArray blocksArray = gameIntroductionObj.getJSONArray("blocks");
-        if (blocksArray == null || blocksArray.isEmpty()) {
-            log.info("游戏介绍blocks数组为空");
-            return new Response(4005);
-        }
-        
+
         // 创建游戏
         BigInteger gameId;
         try {
@@ -151,23 +134,6 @@ public class GameController {
             log.info("游戏介绍不能为空字符串");
             return new Response(4005);
         }
-        
-        // 解析游戏介绍JSON
-        JSONObject gameIntroductionObj;
-        try {
-            gameIntroductionObj = JSON.parseObject(gameIntroduction);
-        } catch (Exception e) {
-            log.info("游戏介绍JSON解析失败: {}", e.getMessage());
-            return new Response(4005);
-        }
-        
-        // 验证blocks数组
-        JSONArray blocksArray = gameIntroductionObj.getJSONArray("blocks");
-        if (blocksArray == null || blocksArray.isEmpty()) {
-            log.info("游戏介绍blocks数组为空");
-            return new Response(4005);
-        }
-        
         // 检查游戏是否存在
         Game existingGame;
         try {
@@ -241,7 +207,6 @@ public class GameController {
                 }
             } catch (Exception e) {
                 log.error("获取类型信息失败: {}", e.getMessage(), e);
-                // 继续处理，类型不是必须的
             }
         }
         
@@ -336,23 +301,31 @@ public class GameController {
             log.error("获取游戏类型失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
-        
+
         // 构建响应对象
         DetailVO detailVO = new DetailVO()
-                .setTypeName(typeName)
-                .setTypeImage(typeImage)
                 .setGameId(game.getId())
                 .setGameName(game.getGameName())
                 .setPrice(game.getPrice())
-                .setGameIntroduction(game.getGameIntroduction())
                 .setGameDate(game.getGameDate())
                 .setGamePublisher(game.getGamePublisher())
                 .setCreateTime(formattedCreateTime)
-                .setUpdateTime(formattedUpdateTime);
+                .setUpdateTime(formattedUpdateTime)
+                .setTypeName(typeName)
+                .setTypeImage(typeImage);
         
         // 处理图片列表
         if (game.getImages() != null && !game.getImages().isEmpty()) {
             detailVO.setImages(Arrays.asList(game.getImages().split("\\$")));
+        }
+
+        try {
+            List<BaseIntroductionVO> introductionList =JSON.parseArray(game.getGameIntroduction(), BaseIntroductionVO.class);
+            detailVO.setGameIntroduction(introductionList);
+        }
+        catch (Exception e) {
+            log.error("解析游戏介绍失败: {}", e.getMessage(), e);
+            return new Response(4004);
         }
         
         return new Response(1001, detailVO);

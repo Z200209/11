@@ -1,10 +1,12 @@
-package com.example.module.service;
+package com.example.module.service.Game;
 
 
+import com.alibaba.fastjson.JSON;
 import com.example.module.entity.Game;
 import com.example.module.entity.Type;
 
 import com.example.module.mapper.GameMapper;
+import com.example.module.request.IntroductionDTO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,14 +64,23 @@ public class GameService {
 
 
     public BigInteger edit (BigInteger id, String gameName, Float price, String gameIntroduction, String gameDate, String gamePublisher, String images, BigInteger typeId) {
+        try {
+            List<IntroductionDTO> check = JSON.parseArray(gameIntroduction, IntroductionDTO.class);
+            for (IntroductionDTO introductionDTO : check) {
+                if (!IntroductionDefine.isIntroductionType(introductionDTO.getType())) {
+                    throw new RuntimeException("gameIntroduction格式错误");
+                }
+            }
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
+
+
         if (gameName == null || gameName.isEmpty()) {
             throw new RuntimeException("gameName 不能为空");
         }
         if (price == null || price < 0) {
             throw new RuntimeException("price 不能为空");
-        }
-        if (gameIntroduction == null || gameIntroduction.isEmpty()) {
-            throw new RuntimeException("gameIntroduction 不能为空");
         }
         if (gameDate == null || gameDate.isEmpty()) {
             throw new RuntimeException("gameDate 不能为空");

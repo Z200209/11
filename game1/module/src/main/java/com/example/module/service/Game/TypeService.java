@@ -1,4 +1,4 @@
-package com.example.module.service;
+package com.example.module.service.Game;
 
 import com.example.module.entity.Type;
 import com.example.module.mapper.TypeMapper;
