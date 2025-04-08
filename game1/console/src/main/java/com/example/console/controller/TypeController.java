@@ -58,7 +58,6 @@ public class TypeController {
         // 构建类型列表
         List<TypeListVO> typeList = new ArrayList<>();
         for (Type type : types) {
-            try {
                 String formattedCreateTime = BaseUtils.timeStamp2DateGMT(type.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
                 String formattedUpdateTime = BaseUtils.timeStamp2DateGMT(type.getUpdateTime(), "yyyy-MM-dd HH:mm:ss");
                 TypeListVO typeListVO = new TypeListVO()
@@ -69,10 +68,6 @@ public class TypeController {
                         .setCreateTime(formattedCreateTime)
                         .setUpdateTime(formattedUpdateTime);
                 typeList.add(typeListVO);
-            } catch (Exception e) {
-                log.error("构建类型VO失败: {}", e.getMessage(), e);
-                // 跳过这个类型，继续处理其他类型
-            }
         }
         
         return new Response(1001, typeList);
@@ -145,14 +140,14 @@ public class TypeController {
             return new Response(1002);
         }
 
-        try {
+
             // 参数验证
             typeName = typeName.trim();
             if (typeName.isEmpty()) {
                 log.info("游戏类型名称不能为空字符串");
                 return new Response(4005);
             }
-
+        try {
             // 创建类型
             BigInteger typeId = typeService.edit(null, typeName, image, parentId);
             return new Response(1001);
@@ -179,7 +174,7 @@ public class TypeController {
             return new Response(1002);
         }
 
-        try {
+
             // 参数验证
             typeName = typeName.trim();
             if (typeName.isEmpty()) {
@@ -193,7 +188,7 @@ public class TypeController {
                 log.info("未找到游戏类型：{}", typeId);
                 return new Response(4006);
             }
-
+        try {
             // 更新类型
             typeService.edit(typeId, typeName, image, parentId);
             return new Response(1001);
@@ -284,7 +279,15 @@ public class TypeController {
 
     @RequestMapping("/tree")
     public Response typeTree(@RequestParam(name = "keyword", required = false) String keyword) {
-        List<Type> rootTypes = typeService.getRootTypes();
+        List<Type> rootTypes;
+        try {
+             rootTypes = typeService.getRootTypes();
+        }
+        catch (Exception e) {
+            log.error("获取根类型列表失败: {}", e.getMessage(), e);
+            return new Response(4004);
+        }
+
         List<TypeTreeVO> typeTreeList = new ArrayList<>();
 
         // 遍历根节点，递归构建类型树

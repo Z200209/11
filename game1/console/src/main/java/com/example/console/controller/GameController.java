@@ -213,11 +213,10 @@ public class GameController {
         // 构建游戏列表数据
         List<GameListVO> gameVOList = new ArrayList<>();
         for (Game game : gameList) {
-            try {
                 String typeName = typeMap.get(game.getTypeId());
                 String formattedCreateTime = BaseUtils.timeStamp2DateGMT(game.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
                 String formattedUpdateTime = BaseUtils.timeStamp2DateGMT(game.getUpdateTime(), "yyyy-MM-dd HH:mm:ss");
-                
+
                 GameListVO gameVO = new GameListVO()
                         .setGameId(game.getId())
                         .setGameName(game.getGameName())
@@ -225,12 +224,8 @@ public class GameController {
                         .setPrice(game.getPrice())
                         .setCreateTime(formattedCreateTime)
                         .setUpdateTime(formattedUpdateTime);
-                
+
                 gameVOList.add(gameVO);
-            } catch (Exception e) {
-                log.error("构建游戏VO失败: {}", e.getMessage(), e);
-                // 跳过这个游戏，继续处理其他游戏
-            }
         }
         
         // 构建最终响应对象
