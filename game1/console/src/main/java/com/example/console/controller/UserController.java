@@ -85,11 +85,12 @@ public class UserController {
             return new Response(4004);
         }
 
-            Cookie cookie = new Cookie("auth_token", token);
-            cookie.setMaxAge(3 * 60 * 60);
-            cookie.setPath("/");
-            cookie.setHttpOnly(true);
-            response.addCookie(cookie);
+        Cookie cookie = new Cookie("auth_token", token);
+        cookie.setMaxAge(3 * 60 * 60);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+
         return new Response(1001);
     }
     
@@ -118,7 +119,7 @@ public class UserController {
      */
     @RequestMapping("/logout")
     public Response logout(HttpServletResponse response) {
-        try {
+
             // 清除Cookie
             Cookie cookie = new Cookie("auth_token", null);
             cookie.setMaxAge(0);
@@ -126,9 +127,8 @@ public class UserController {
             response.addCookie(cookie);
             
             return new Response(1001);
-        } catch (Exception e) {
-            log.error("退出失败: {}", e.getMessage(), e);
-            return new Response(4004);
-        }
+
+
     }
+
 }
