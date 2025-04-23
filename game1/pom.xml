@@ -11,6 +11,23 @@
         <version>3.4.1</version>
         <relativePath/>
     </parent>
+<dependencies>
+
+    <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-generator</artifactId>
+        <version>3.5.3</version>
+    </dependency>
+
+    <!-- Freemarker 模板引擎 -->
+    <dependency>
+        <groupId>org.freemarker</groupId>
+        <artifactId>freemarker</artifactId>
+        <version>2.3.31</version>
+    </dependency>
+
+
+</dependencies>
 
     <groupId>com.example</groupId>
     <artifactId>game1</artifactId>

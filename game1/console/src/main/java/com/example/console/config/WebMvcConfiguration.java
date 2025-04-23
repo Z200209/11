@@ -17,6 +17,9 @@ import java.util.List;
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
     private final ApplicationArguments appArguments;
+    
+    @Resource
+    private ConsoleInterceptor consoleInterceptor;
 
     public WebMvcConfiguration(ApplicationArguments appArguments) {
         this.appArguments = appArguments;
@@ -34,12 +37,15 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new ConsoleInterceptor())
+        registry.addInterceptor(consoleInterceptor)
                 .addPathPatterns("/console/**")
                 .excludePathPatterns(
-                        "/app/user/login",
-                        "/app/user/register",
-                        "/app/user/logout"
+                        "/console/user/login",
+                        "/console/user/register",
+                        "/console/user/logout",
+                        "/console/game/create",
+                        "/console/game/update"
+
                 );
     }
 }

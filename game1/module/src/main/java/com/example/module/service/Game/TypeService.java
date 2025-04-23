@@ -4,6 +4,7 @@ import com.example.module.entity.Type;
 import com.example.module.mapper.TypeMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -37,15 +38,16 @@ public class TypeService {
         return mapper.extractById(id);
     }
 
+    @Transactional
     public int insert(Type type) {
         return mapper.insert(type);
     }
 
-
+    @Transactional
     public int update(Type type) {
         return mapper.update(type);
     }
-
+    @Transactional
     public int delete(BigInteger id) {
         if (id == null){
             throw new RuntimeException("id 不能为空");
@@ -69,7 +71,7 @@ public class TypeService {
     public Integer getTotalCount(String keyword) {
         return mapper.getTotalCount(keyword);
     }
-
+    @Transactional
     public BigInteger edit (BigInteger id, String typeName,String image,BigInteger parentId) {
         if (typeName == null || typeName.isEmpty()) {
             throw new RuntimeException("typeName 不能为空");

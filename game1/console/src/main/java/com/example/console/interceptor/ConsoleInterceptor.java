@@ -3,8 +3,7 @@ package com.example.console.interceptor;
 import java.io.IOException;
 import java.util.Base64;
 
-import jakarta.annotation.Resource;
-import lombok.experimental.Accessors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -24,11 +23,10 @@ import com.example.module.service.UserService;
 
 @Component
 @Slf4j
-public class  ConsoleInterceptor implements HandlerInterceptor {
+public class ConsoleInterceptor implements HandlerInterceptor {
 
-    @Resource
+    @Autowired
     private UserService userService;
-
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
@@ -102,5 +100,4 @@ public class  ConsoleInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         log.info("afterCompletion: " + request.getRequestURI());
     }
-
 }

@@ -7,12 +7,10 @@ import com.example.app.domain.game.GameInfoVO;
 import com.example.app.domain.game.GameListVO;
 import com.example.app.domain.game.GameVO;
 import com.example.app.domain.game.ImageVO;
-import com.example.module.entity.Game;
-import com.example.module.entity.Type;
-import com.example.module.entity.User;
-import com.example.module.entity.Wp;
+import com.example.module.entity.*;
 import com.example.module.service.Game.GameService;
 import com.example.module.service.Game.TypeService;
+import com.example.module.service.TagService;
 import com.example.module.utils.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 游戏控制器
@@ -37,6 +36,9 @@ public class GameController {
     
     @Autowired
     private TypeService typeService;
+
+    @Autowired
+    private TagService tagService;
 
     /**
      * 获取游戏详情
@@ -83,7 +85,10 @@ public class GameController {
                 // 继续处理，类型不是必须的
             }
         }
-        
+        List<Tag> tag = tagService.getTagsByGameId(gameId);
+        List<String> tagNames = tag.stream()
+                .map(Tag::getName)
+                .collect(Collectors.toList());
 
         
         // 构建返回对象
@@ -94,7 +99,8 @@ public class GameController {
                 .setGameName(game.getGameName())
                 .setPrice(game.getPrice())
                 .setGameDate(game.getGameDate())
-                .setGamePublisher(game.getGamePublisher());
+                .setGamePublisher(game.getGamePublisher())
+                .setTags(tagNames);
                 
         // 将图片字符串按 "$" 拆分为列表
         if (game.getImages() != null && !game.getImages().isEmpty()) {

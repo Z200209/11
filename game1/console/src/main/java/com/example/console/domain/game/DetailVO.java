@@ -22,5 +22,5 @@ public class DetailVO {
     private String updateTime;
     private String typeName;
     private String typeImage;
-
+    private List<String> tags;       // 游戏标签列表
 }

@@ -11,6 +11,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -23,18 +24,24 @@ public class GameService {
     private GameMapper mapper;
     @Autowired
     private TypeService typeService;
+
+
     public Game getById(BigInteger id) {
         return mapper.getById(id);
     }
     public Game extractById(BigInteger id) {
         return mapper.extractById(id);
     }
+
+    @Transactional
     public int insert(Game game) {
         return mapper.insert(game);
     }
+    @Transactional
     public int update(Game game) {
         return mapper.update(game);
     }
+    @Transactional
     public int delete(BigInteger id) {
         int time = (int) (System.currentTimeMillis() / 1000);
         if (id == null){
@@ -63,6 +70,7 @@ public class GameService {
     }
 
 
+    @Transactional
     public BigInteger edit (BigInteger id, String gameName, Float price, String gameIntroduction, String gameDate, String gamePublisher, String images, BigInteger typeId) {
         try {
             List<IntroductionDTO> check = JSON.parseArray(gameIntroduction, IntroductionDTO.class);

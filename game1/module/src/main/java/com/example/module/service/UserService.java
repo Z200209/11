@@ -5,6 +5,8 @@ import com.example.module.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.apache.ibatis.annotations.Param;
 
 import java.math.BigInteger;
 
@@ -16,13 +18,17 @@ public class UserService {
     public User getUserById(BigInteger id) {
         return userMapper.getUserById(id);
     }
+
+    @Transactional
     public int insert(User user) {
         return userMapper.insert(user);
     }
-
+    
+    @Transactional
     public int update(User user) {
         return userMapper.update(user);
     }
+    
     public User getUserByPhone(String phone) {
         if (phone == null){
             throw new RuntimeException("手机号不能为空");
@@ -43,7 +49,8 @@ public class UserService {
         }
         return user;
     }
-
+    
+    @Transactional
     public int register(String phone, String password,String name, String avatar)
     {
         int time = (int) (System.currentTimeMillis() / 1000);
@@ -70,7 +77,8 @@ public class UserService {
         return result;
 
     }
-
+    
+    @Transactional
     public int updateInfo (BigInteger id,String phone, String password, String name, String avatar) {
         int time = (int) (System.currentTimeMillis() / 1000);
 

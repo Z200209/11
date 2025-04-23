@@ -15,9 +15,9 @@ public interface UserMapper {
     @Select("select * from user1 where phone = #{phone}")
     User getUserByPhone(@Param("phone") String phone);
 
-    int update(@Param("user") User user);
+    int update(User user);
 
-    int insert(@Param("user") User user);
+    int insert(User user);
 
     int delete(BigInteger id);
 

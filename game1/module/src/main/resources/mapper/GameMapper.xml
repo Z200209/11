@@ -33,15 +33,16 @@
     <!-- 更新操作 -->
     <update id="update" parameterType="com.example.module.entity.Game">
         UPDATE game
-        <set> id = #{game.id}
-            <if test="game.gameName != null">,game_name = #{game.gameName}</if>
-            <if test="game.price != null">,price = #{game.price}</if>
-            <if test="game.gameIntroduction != null and game.gameIntroduction !=''"> ,game_introduction = #{game.gameIntroduction}</if>
-            <if test="game.gameDate != null">,game_date = #{game.gameDate} </if>
-            <if test="game.gamePublisher != null and game.gamePublisher !=''">,game_publisher = #{game.gamePublisher}</if>
-            <if test="game.images != null and game.images !=''">,images = #{game.images}</if>
-            <if test="game.updateTime != null">,update_time = #{game.updateTime}</if>
-            #{game.typeId}
+        <set>
+            <if test="game.id != null">id = #{game.id},</if>
+            <if test="game.gameName != null">game_name = #{game.gameName},</if>
+            <if test="game.price != null">price = #{game.price},</if>
+            <if test="game.gameIntroduction != null and game.gameIntroduction !=''">game_introduction = #{game.gameIntroduction},</if>
+            <if test="game.gameDate != null">game_date = #{game.gameDate},</if>
+            <if test="game.gamePublisher != null and game.gamePublisher !=''">game_publisher = #{game.gamePublisher},</if>
+            <if test="game.images != null and game.images !=''">images = #{game.images},</if>
+            <if test="game.updateTime != null">update_time = #{game.updateTime},</if>
+            <if test="game.typeId != null">type_id = #{game.typeId}</if>
         </set>
         WHERE id = #{game.id}
     </update>

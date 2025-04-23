@@ -19,6 +19,7 @@ public class GameInfoVO {
     private String gamePublisher;    // 游戏发行商
     private List<String> images;     // 游戏轮播图（列表形式）
     private String typeName;
+    private List<String> tags;
     private String TypeImage;
 
 }

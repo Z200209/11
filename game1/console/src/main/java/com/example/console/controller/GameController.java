@@ -8,8 +8,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.example.console.domain.BaseIntroductionVO;
+import com.example.module.entity.Tag;
+import com.example.module.service.TagService;
 import com.example.module.utils.BaseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,31 +42,29 @@ public class GameController {
 
     @Autowired
     private GameService gameService;
-    
+
     @Autowired
     private TypeService typeService;
 
+    @Autowired
+    private TagService tagService;
 
     /**
      * 创建游戏
      */
     @PostMapping("/create")
     public Response createGame(
-            @VerifiedUser User loginUser,
             @RequestParam(name = "typeId", required = false) BigInteger typeId,
             @RequestParam(name = "gameName") String gameName,
             @RequestParam(name = "price") Float price,
             @RequestParam(name = "gameIntroduction") String gameIntroduction,
             @RequestParam(name = "gameDate") String gameDate,
             @RequestParam(name = "gamePublisher") String gamePublisher,
-            @RequestParam(name = "images") String images) {
-        
+            @RequestParam(name = "images") String images,
+            @RequestParam(name = "tags", required = false) String tags) {
+
         // 验证用户是否登录
-        if (loginUser == null) {
-            log.warn("未登录用户尝试创建游戏");
-            return new Response(1002);
-        }
-        
+
         // 参数验证
         gameName = gameName.trim();
         gamePublisher = gamePublisher.trim();
@@ -72,7 +73,7 @@ public class GameController {
             log.info("游戏名称不能为空字符串");
             return new Response(4005);
         }
-        
+
         if (price < 0) {
             log.info("游戏价格不能为负数");
             return new Response(4005);
@@ -87,11 +88,16 @@ public class GameController {
         BigInteger gameId;
         try {
             gameId = gameService.edit(null, gameName, price, gameIntroduction, gameDate, gamePublisher, images, typeId);
+
+            // 处理标签
+            if (tags != null && !tags.isEmpty()) {
+                tagService.updateGameTags(gameId, tags);
+            }
         } catch (Exception e) {
             log.error("创建游戏失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
-        
+
         return new Response<>(1001, "创建成功，ID: " + gameId);
     }
 
@@ -108,13 +114,14 @@ public class GameController {
             @RequestParam(name = "gameIntroduction") String gameIntroduction,
             @RequestParam(name = "gameDate") String gameDate,
             @RequestParam(name = "gamePublisher") String gamePublisher,
-            @RequestParam(name = "images") String images) {
-        
+            @RequestParam(name = "images") String images,
+            @RequestParam(name = "tags", required = false) String tags) {
+
         // 验证用户是否登录
-        if (loginUser == null) {
-            log.warn("未登录用户尝试更新游戏");
-            return new Response(1002);
-        }
+//        if (loginUser == null) {
+//            log.warn("未登录用户尝试更新游戏");
+//            return new Response(1002);
+//        }
 
         // 参数验证
         gameName = gameName.trim();
@@ -124,7 +131,7 @@ public class GameController {
             log.info("游戏名称不能为空字符串");
             return new Response(4005);
         }
-        
+
         if (price < 0) {
             log.info("游戏价格不能为负数");
             return new Response(4005);
@@ -142,20 +149,25 @@ public class GameController {
             log.error("获取游戏信息失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
-        
+
         if (existingGame == null) {
             log.info("未找到游戏: {}", gameId);
             return new Response(4006);
         }
-        
+
         // 更新游戏
         try {
             gameService.edit(gameId, gameName, price, gameIntroduction, gameDate, gamePublisher, images, typeId);
+
+            // 处理标签
+            if (tags != null) {
+                tagService.updateGameTags(gameId, tags);
+            }
         } catch (Exception e) {
             log.error("更新游戏失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
-        
+
         return new Response(1001);
     }
 
@@ -168,15 +180,15 @@ public class GameController {
             @RequestParam(name = "page", defaultValue = "1") Integer page,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "typeId", required = false) BigInteger typeId) {
-        
+
         // 验证用户是否登录
         if (loginUser == null) {
             log.warn("未登录用户尝试获取游戏列表");
             return new Response(1002);
         }
-        
+
         int pageSize = 10;
-        
+
         // 获取游戏列表和总数
         List<Game> gameList;
         Integer total;
@@ -187,16 +199,18 @@ public class GameController {
             log.error("获取游戏列表失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
-        
-        // 收集类型ID
+
+        // 收集类型ID和游戏ID
         Set<BigInteger> typeIdSet = new HashSet<>();
+        Set<BigInteger> gameIdSet = new HashSet<>();
         for (Game game : gameList) {
+            gameIdSet.add(game.getId());
             BigInteger tid = game.getTypeId();
             if (tid != null) {
                 typeIdSet.add(tid);
             }
         }
-        
+
         // 获取类型信息
         Map<BigInteger, String> typeMap = new HashMap<>();
         if (!typeIdSet.isEmpty()) {
@@ -209,7 +223,7 @@ public class GameController {
                 log.error("获取类型信息失败: {}", e.getMessage(), e);
             }
         }
-        
+
         // 构建游戏列表数据
         List<GameListVO> gameVOList = new ArrayList<>();
         for (Game game : gameList) {
@@ -227,14 +241,14 @@ public class GameController {
 
                 gameVOList.add(gameVO);
         }
-        
+
         // 构建最终响应对象
         Map<String, Object> result = new HashMap<>();
         result.put("list", gameVOList);
         result.put("total", total);
         result.put("page", page);
         result.put("pageSize", pageSize);
-        
+
         return new Response(1001, result);
     }
 
@@ -247,13 +261,13 @@ public class GameController {
     public Response gameInfo(
             @VerifiedUser User loginUser,
             @RequestParam(name = "gameId") BigInteger gameId) {
-        
+
         // 验证用户是否登录
         if (loginUser == null) {
             log.warn("未登录用户尝试获取游戏详情");
             return new Response(1002);
         }
-        
+
         // 获取游戏信息
         Game game;
         try {
@@ -262,12 +276,12 @@ public class GameController {
             log.error("获取游戏详情失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
-        
+
         if (game == null) {
             log.info("未找到游戏信息：{}", gameId);
             return new Response(4006);
         }
-    
+
         // 格式化时间
         String formattedCreateTime;
         String formattedUpdateTime;
@@ -278,7 +292,7 @@ public class GameController {
             log.error("格式化时间失败: {}", e.getMessage(), e);
             return new Response(4004);
         }
-        
+
         // 获取类型信息
         BigInteger typeId = game.getTypeId();
         Type type;
@@ -297,6 +311,12 @@ public class GameController {
             return new Response(4004);
         }
 
+        // 获取标签信息
+        List<Tag> tag = tagService.getTagsByGameId(gameId);
+        List<String> tagNames = tag.stream()
+                .map(Tag::getName)
+                .collect(Collectors.toList());
+
         // 构建响应对象
         DetailVO detailVO = new DetailVO()
                 .setGameId(game.getId())
@@ -307,7 +327,8 @@ public class GameController {
                 .setCreateTime(formattedCreateTime)
                 .setUpdateTime(formattedUpdateTime)
                 .setTypeName(typeName)
-                .setTypeImage(typeImage);
+                .setTypeImage(typeImage)
+                .setTags(tagNames);
         
         // 处理图片列表
         if (game.getImages() != null && !game.getImages().isEmpty()) {
@@ -315,7 +336,7 @@ public class GameController {
         }
 
         try {
-            List<BaseIntroductionVO> introductionList =JSON.parseArray(game.getGameIntroduction(), BaseIntroductionVO.class);
+            List<BaseIntroductionVO> introductionList = JSON.parseArray(game.getGameIntroduction(), BaseIntroductionVO.class);
             detailVO.setGameIntroduction(introductionList);
         }
         catch (Exception e) {
@@ -360,8 +381,6 @@ public class GameController {
             return new Response(4004);
         }
     }
-    
-
 }
 
 
