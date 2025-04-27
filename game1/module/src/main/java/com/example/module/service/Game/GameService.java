@@ -128,8 +128,6 @@ public class GameService {
                 throw new RuntimeException("插入失败");
             }
             id = game.getId();
-            tagService.updateGameTags(id, tags);
-
         }
         else {
             game.setId(id);
@@ -137,8 +135,8 @@ public class GameService {
             if (result == 0){
                 throw new RuntimeException("id不存在");
             }
-
         }
+        tagService.updateGameTags(id, tags);
         return game.getId();
 
     }
