@@ -61,13 +61,14 @@ public class GameController {
             @RequestParam(name = "gameDate") String gameDate,
             @RequestParam(name = "gamePublisher") String gamePublisher,
             @RequestParam(name = "images") String images,
-            @RequestParam(name = "tags", required = false) String tags) {
+            @RequestParam(name = "tags") String tags) {
 
         // 验证用户是否登录
 
         // 参数验证
         gameName = gameName.trim();
         gamePublisher = gamePublisher.trim();
+        tags = tags.trim();
 
         if (gameName.isEmpty()) {
             log.info("游戏名称不能为空字符串");
@@ -83,16 +84,15 @@ public class GameController {
             log.info("游戏介绍不能为空字符串");
             return new Response(4005);
         }
+        if(tags.isEmpty()){
+            log.info("游戏标签不能为空字符串");
+            return new Response(4005);
+        }
 
         // 创建游戏
         BigInteger gameId;
         try {
-            gameId = gameService.edit(null, gameName, price, gameIntroduction, gameDate, gamePublisher, images, typeId);
-
-            // 处理标签
-            if (tags != null && !tags.isEmpty()) {
-                tagService.updateGameTags(gameId, tags);
-            }
+            gameId = gameService.edit(null, gameName, price, gameIntroduction, gameDate, gamePublisher, images, typeId, tags);
         } catch (Exception e) {
             log.error("创建游戏失败: {}", e.getMessage(), e);
             return new Response(4004);
@@ -126,6 +126,7 @@ public class GameController {
         // 参数验证
         gameName = gameName.trim();
         gamePublisher = gamePublisher.trim();
+        tags = tags.trim();
 
         if (gameName.isEmpty()) {
             log.info("游戏名称不能为空字符串");
@@ -154,15 +155,14 @@ public class GameController {
             log.info("未找到游戏: {}", gameId);
             return new Response(4006);
         }
+        if(tags.isEmpty()){
+            log.info("游戏标签不能为空字符串");
+            return new Response(4005);
+        }
 
         // 更新游戏
         try {
-            gameService.edit(gameId, gameName, price, gameIntroduction, gameDate, gamePublisher, images, typeId);
-
-            // 处理标签
-            if (tags != null) {
-                tagService.updateGameTags(gameId, tags);
-            }
+            gameService.edit(gameId, gameName, price, gameIntroduction, gameDate, gamePublisher, images, typeId, tags);
         } catch (Exception e) {
             log.error("更新游戏失败: {}", e.getMessage(), e);
             return new Response(4004);

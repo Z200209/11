@@ -3,10 +3,12 @@ package com.example.module.service.Game;
 
 import com.alibaba.fastjson.JSON;
 import com.example.module.entity.Game;
+import com.example.module.entity.Tag;
 import com.example.module.entity.Type;
 
 import com.example.module.mapper.GameMapper;
 import com.example.module.request.IntroductionDTO;
+import com.example.module.service.TagService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,8 @@ public class GameService {
     private GameMapper mapper;
     @Autowired
     private TypeService typeService;
+    @Autowired
+    private TagService tagService;
 
 
     public Game getById(BigInteger id) {
@@ -71,7 +75,7 @@ public class GameService {
 
 
     @Transactional
-    public BigInteger edit (BigInteger id, String gameName, Float price, String gameIntroduction, String gameDate, String gamePublisher, String images, BigInteger typeId) {
+    public BigInteger edit (BigInteger id, String gameName, Float price, String gameIntroduction, String gameDate, String gamePublisher, String images, BigInteger typeId, String tags) {
         try {
             List<IntroductionDTO> check = JSON.parseArray(gameIntroduction, IntroductionDTO.class);
             for (IntroductionDTO introductionDTO : check) {
@@ -82,8 +86,6 @@ public class GameService {
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
         }
-
-
         if (gameName == null || gameName.isEmpty()) {
             throw new RuntimeException("gameName 不能为空");
         }
@@ -105,7 +107,9 @@ public class GameService {
                 throw new RuntimeException("typeId不存在");
             }
         }
-
+        if(tags == null || tags.isEmpty()){
+            throw new RuntimeException("tags 不能为空");
+        }
         int time = (int) (System.currentTimeMillis() / 1000);
         Game game = new Game();
         game.setGameName(gameName);
@@ -116,14 +120,15 @@ public class GameService {
         game.setImages(images);
         game.setUpdateTime(time);
         game.setTypeId(typeId);
-
         if (id == null){
             game.setCreateTime(time);
             game.setIsDeleted(0);
-            int result =  insert(game);
+            int result = insert(game);
             if (result == 0){
                 throw new RuntimeException("插入失败");
             }
+            id = game.getId();
+            tagService.updateGameTags(id, tags);
 
         }
         else {
